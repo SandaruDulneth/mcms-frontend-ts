@@ -13,7 +13,9 @@ export async function GET() {
     });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Unknown MongoDB connection error.";
+      error instanceof Error
+        ? error.message
+        : "Unknown MongoDB connection error.";
 
     return NextResponse.json(
       {
