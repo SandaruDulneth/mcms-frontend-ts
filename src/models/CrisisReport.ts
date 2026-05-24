@@ -1,4 +1,4 @@
-import { Schema, model, models, type InferSchemaType } from "mongoose";
+import { type InferSchemaType, model, models, Schema } from "mongoose";
 
 const crisisReportSchema = new Schema(
   {

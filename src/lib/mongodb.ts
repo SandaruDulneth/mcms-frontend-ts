@@ -1,4 +1,4 @@
-import { MongoClient, type Db } from "mongodb";
+import { type Db, MongoClient } from "mongodb";
 
 const uri = process.env.MONGODB_URI;
 const dbName = process.env.MONGODB_DB ?? "mcms";
