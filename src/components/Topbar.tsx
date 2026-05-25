@@ -10,10 +10,12 @@ export default function Topbar() {
             Multilingual Crisis Management System
           </h1>
         </div>
-        <div className="flex items-center gap-3 text-sm">
-          <span className="rounded-md border border-green-700 bg-green-50 px-3 py-1.5 font-semibold text-green-800">
-            System Online
+        <div className="flex items-center gap-2 text-sm text-slate-600">
+          <span className="relative flex h-3 w-3" aria-hidden="true">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75" />
+            <span className="relative inline-flex h-3 w-3 rounded-full bg-green-700" />
           </span>
+          <span className="sr-only">System online</span>
 
         </div>
       </div>
