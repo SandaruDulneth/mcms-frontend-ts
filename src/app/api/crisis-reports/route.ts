@@ -12,6 +12,9 @@ type CrisisReportPayload = {
   location?: unknown;
   category?: unknown;
   urgencyLevel?: unknown;
+  assignedAuthority?: unknown;
+  authority?: unknown;
+  notes?: unknown;
   affectedCommunity?: unknown;
   status?: unknown;
 };
@@ -78,6 +81,9 @@ export async function POST(request: Request) {
       location: readString(body.location),
       category: readString(body.category),
       urgencyLevel: readString(body.urgencyLevel),
+      assignedAuthority:
+        readString(body.assignedAuthority) || readString(body.authority),
+      notes: readString(body.notes),
       affectedCommunity: readStringArray(body.affectedCommunity),
       status: readString(body.status) || "Active",
     });
