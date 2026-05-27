@@ -27,6 +27,14 @@ const crisisReportSchema = new Schema(
       type: String,
       trim: true,
     },
+    assignedAuthority: {
+      type: String,
+      trim: true,
+    },
+    notes: {
+      type: String,
+      trim: true,
+    },
     affectedCommunity: {
       type: [String],
       default: [],

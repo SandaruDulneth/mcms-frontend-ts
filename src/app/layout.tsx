@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MCMS Prototype",
+  title: "MCMS",
   description: "Multilingual Crisis Management System ",
 };
 

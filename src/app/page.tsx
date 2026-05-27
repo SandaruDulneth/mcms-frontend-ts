@@ -5,7 +5,7 @@ export default function Home() {
     <main className="px-5 py-8 md:px-8">
       <section className="rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
         <p className="text-sm font-semibold uppercase tracking-wide text-red-700">
-          Emergency response 
+          Emergency response
         </p>
         <h2 className="mt-4 max-w-3xl text-3xl font-bold tracking-tight text-slate-950">
           Multilingual Crisis Management System for coordinated disaster
