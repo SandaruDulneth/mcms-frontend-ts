@@ -17,10 +17,68 @@ export default function ReportForm() {
   const [source, setSource] = useState("Citizen SMS");
   const [contact, setContact] = useState("");
   const [result, setResult] = useState<ClassificationResult | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   function handleAnalyze(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setSaveMessage(null);
+    setSaveError(null);
     setResult(classifyMessage(message, language));
+  }
+
+  async function handleSaveReport() {
+    const analysis = result ?? classifyMessage(message, language);
+
+    setResult(analysis);
+    setIsSaving(true);
+    setSaveMessage(null);
+    setSaveError(null);
+
+    try {
+      const response = await fetch("/api/crisis-reports", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          originalMessage: message,
+          detectedLanguage: analysis.detectedLanguage,
+          translatedMessage: analysis.translatedMessage,
+          location,
+          sourceType: source,
+          contactInfo: contact,
+          category: analysis.category,
+          urgencyLevel: analysis.urgency,
+          assignedAuthority: analysis.suggestedAuthority,
+          status: "Active",
+        }),
+      });
+      const data = (await response.json()) as {
+        ok?: boolean;
+        message?: string;
+        report?: { _id?: string };
+      };
+
+      if (!response.ok || !data.ok) {
+        throw new Error(data.message || "Failed to save crisis report.");
+      }
+
+      setSaveMessage(
+        data.report?._id
+          ? `Report saved. Reference ID: ${data.report._id}`
+          : "Report saved.",
+      );
+    } catch (error) {
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : "Failed to save crisis report.",
+      );
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -159,6 +217,26 @@ export default function ReportForm() {
               <dd className="mt-1 text-slate-950">
                 {result.suggestedAuthority}
               </dd>
+            </div>
+            <div className="border-t border-slate-200 pt-4">
+              <button
+                type="button"
+                onClick={handleSaveReport}
+                disabled={isSaving}
+                className="w-full rounded-md bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-400"
+              >
+                {isSaving ? "Saving report..." : "Submit report"}
+              </button>
+              {saveMessage ? (
+                <p className="mt-3 rounded-md border border-green-700 bg-green-50 px-3 py-2 text-sm font-semibold text-green-800">
+                  {saveMessage}
+                </p>
+              ) : null}
+              {saveError ? (
+                <p className="mt-3 rounded-md border border-red-700 bg-red-50 px-3 py-2 text-sm font-semibold text-red-800">
+                  {saveError}
+                </p>
+              ) : null}
             </div>
           </dl>
         ) : (

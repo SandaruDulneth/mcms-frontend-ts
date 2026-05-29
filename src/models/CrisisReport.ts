@@ -19,6 +19,14 @@ const crisisReportSchema = new Schema(
       type: String,
       trim: true,
     },
+    sourceType: {
+      type: String,
+      trim: true,
+    },
+    contactInfo: {
+      type: String,
+      trim: true,
+    },
     category: {
       type: String,
       trim: true,
