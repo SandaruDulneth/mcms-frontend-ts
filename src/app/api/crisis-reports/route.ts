@@ -10,6 +10,10 @@ type CrisisReportPayload = {
   detectedLanguage?: unknown;
   translatedMessage?: unknown;
   location?: unknown;
+  sourceType?: unknown;
+  source?: unknown;
+  contactInfo?: unknown;
+  contact?: unknown;
   category?: unknown;
   urgencyLevel?: unknown;
   assignedAuthority?: unknown;
@@ -79,6 +83,8 @@ export async function POST(request: Request) {
       detectedLanguage: readString(body.detectedLanguage),
       translatedMessage: readString(body.translatedMessage),
       location: readString(body.location),
+      sourceType: readString(body.sourceType) || readString(body.source),
+      contactInfo: readString(body.contactInfo) || readString(body.contact),
       category: readString(body.category),
       urgencyLevel: readString(body.urgencyLevel),
       assignedAuthority:
