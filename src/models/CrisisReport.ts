@@ -11,6 +11,10 @@ const crisisReportSchema = new Schema(
       type: String,
       trim: true,
     },
+    reportedLanguage: {
+      type: String,
+      trim: true,
+    },
     translatedMessage: {
       type: String,
       trim: true,

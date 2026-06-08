@@ -1,6 +1,6 @@
-import type { DisasterReport } from "@/data/mockDisasters";
+import type { CrisisReportRecord } from "@/types/crisis-report";
 
-const pinStyles = {
+const pinStyles: Record<string, string> = {
   Critical: "bg-red-700 text-white",
   High: "bg-amber-600 text-slate-950",
   Medium: "bg-amber-500 text-slate-950",
@@ -10,7 +10,7 @@ const pinStyles = {
 export default function MapPlaceholder({
   reports,
 }: {
-  reports: DisasterReport[];
+  reports: CrisisReportRecord[];
 }) {
   return (
     <section className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
@@ -24,16 +24,22 @@ export default function MapPlaceholder({
               key={report.id}
               className="border-b border-slate-200 pb-3 last:border-0"
             >
-              <p className="font-semibold text-slate-950">{report.location}</p>
+              <p className="font-semibold text-slate-950">
+                {report.location || "Location not provided"}
+              </p>
               <p className="text-sm text-slate-600">
-                {report.category} • {report.urgency}
+                {report.category || "Pending classification"} |{" "}
+                {report.urgencyLevel || "Pending urgency"}
               </p>
             </li>
           ))}
+          {reports.length === 0 ? (
+            <li className="text-sm text-slate-600">No incidents available.</li>
+          ) : null}
         </ul>
       </aside>
       <div
-        aria-label="Prototype crisis map with sample incident pins"
+        aria-label="Crisis report location overview"
         role="img"
         className="relative min-h-[520px] overflow-hidden rounded-lg border border-slate-300 bg-slate-200 shadow-sm"
       >
@@ -41,19 +47,24 @@ export default function MapPlaceholder({
         <div className="absolute inset-y-0 left-1/3 w-px bg-slate-300" />
         <div className="absolute inset-y-0 left-2/3 w-px bg-slate-300" />
         <div className="absolute inset-x-0 top-2/3 h-px bg-slate-300" />
-        <div className="absolute left-8 top-8 rounded-md bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm">
-          Map placeholder
-        </div>
-        {reports.map((report) => (
-          <div
-            key={report.id}
-            className={`absolute flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white text-xs font-bold shadow-md ${pinStyles[report.urgency]}`}
-            style={report.coordinates}
-            title={`${report.location}: ${report.urgency}`}
-          >
-            {report.urgency[0]}
-          </div>
-        ))}
+        {reports.map((report, index) => {
+          const urgency = report.urgencyLevel || "Pending";
+          const top = `${20 + ((index * 23) % 65)}%`;
+          const left = `${15 + ((index * 31) % 70)}%`;
+
+          return (
+            <div
+              key={report.id}
+              className={`absolute flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-white text-xs font-bold shadow-md ${
+                pinStyles[urgency] ?? "bg-slate-600 text-white"
+              }`}
+              style={{ top, left }}
+              title={`${report.location || "Unknown location"}: ${urgency}`}
+            >
+              {urgency[0]}
+            </div>
+          );
+        })}
       </div>
     </section>
   );

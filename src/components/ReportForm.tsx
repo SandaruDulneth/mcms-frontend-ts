@@ -1,11 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import {
-  type ClassificationResult,
-  classifyMessage,
-} from "@/lib/classifyMessage";
-import UrgencyBadge from "./UrgencyBadge";
 
 const inputClass =
   "mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 focus:border-slate-950 focus:outline-none focus:ring-2 focus:ring-slate-950";
@@ -13,25 +8,15 @@ const inputClass =
 export default function ReportForm() {
   const [message, setMessage] = useState("");
   const [location, setLocation] = useState("");
-  const [language, setLanguage] = useState("English");
-  const [source, setSource] = useState("Citizen SMS");
+  const [language, setLanguage] = useState("");
+  const [source, setSource] = useState("");
   const [contact, setContact] = useState("");
-  const [result, setResult] = useState<ClassificationResult | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  function handleAnalyze(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSaveMessage(null);
-    setSaveError(null);
-    setResult(classifyMessage(message, language));
-  }
-
-  async function handleSaveReport() {
-    const analysis = result ?? classifyMessage(message, language);
-
-    setResult(analysis);
     setIsSaving(true);
     setSaveMessage(null);
     setSaveError(null);
@@ -44,15 +29,10 @@ export default function ReportForm() {
         },
         body: JSON.stringify({
           originalMessage: message,
-          detectedLanguage: analysis.detectedLanguage,
-          translatedMessage: analysis.translatedMessage,
           location,
+          reportedLanguage: language,
           sourceType: source,
           contactInfo: contact,
-          category: analysis.category,
-          urgencyLevel: analysis.urgency,
-          assignedAuthority: analysis.suggestedAuthority,
-          status: "Active",
         }),
       });
       const data = (await response.json()) as {
@@ -70,6 +50,11 @@ export default function ReportForm() {
           ? `Report saved. Reference ID: ${data.report._id}`
           : "Report saved.",
       );
+      setMessage("");
+      setLocation("");
+      setLanguage("");
+      setSource("");
+      setContact("");
     } catch (error) {
       setSaveError(
         error instanceof Error
@@ -84,7 +69,7 @@ export default function ReportForm() {
   return (
     <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
       <form
-        onSubmit={handleAnalyze}
+        onSubmit={handleSubmit}
         className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
       >
         <div>
@@ -126,14 +111,16 @@ export default function ReportForm() {
               htmlFor="language"
               className="text-sm font-semibold text-slate-900"
             >
-              Language
+              Reported language
             </label>
             <select
               id="language"
+              required
               value={language}
               onChange={(event) => setLanguage(event.target.value)}
               className={inputClass}
             >
+              <option value="">Select language</option>
               <option>English</option>
               <option>Sinhala</option>
               <option>Tamil</option>
@@ -148,10 +135,12 @@ export default function ReportForm() {
             </label>
             <select
               id="source"
+              required
               value={source}
               onChange={(event) => setSource(event.target.value)}
               className={inputClass}
             >
+              <option value="">Select source</option>
               <option>Citizen SMS</option>
               <option>Mobile App</option>
               <option>Hotline</option>
@@ -176,75 +165,30 @@ export default function ReportForm() {
         </div>
         <button
           type="submit"
-          className="mt-6 rounded-md bg-red-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-700 focus:ring-offset-2"
+          disabled={isSaving}
+          className="mt-6 rounded-md bg-red-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-700 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-400"
         >
-          Analyze report
+          {isSaving ? "Saving report..." : "Submit report"}
         </button>
       </form>
 
       <aside className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-slate-950">Analysis result</h2>
-        {result ? (
-          <dl className="mt-5 space-y-4 text-sm">
-            <div>
-              <dt className="font-semibold text-slate-600">
-                Detected language
-              </dt>
-              <dd className="mt-1 text-slate-950">{result.detectedLanguage}</dd>
-            </div>
-            <div>
-              <dt className="font-semibold text-slate-600">
-                Translated message
-              </dt>
-              <dd className="mt-1 text-slate-950">
-                {result.translatedMessage}
-              </dd>
-            </div>
-            <div>
-              <dt className="font-semibold text-slate-600">Category</dt>
-              <dd className="mt-1 text-slate-950">{result.category}</dd>
-            </div>
-            <div>
-              <dt className="font-semibold text-slate-600">Urgency level</dt>
-              <dd className="mt-2">
-                <UrgencyBadge value={result.urgency} />
-              </dd>
-            </div>
-            <div>
-              <dt className="font-semibold text-slate-600">
-                Suggested authority
-              </dt>
-              <dd className="mt-1 text-slate-950">
-                {result.suggestedAuthority}
-              </dd>
-            </div>
-            <div className="border-t border-slate-200 pt-4">
-              <button
-                type="button"
-                onClick={handleSaveReport}
-                disabled={isSaving}
-                className="w-full rounded-md bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-400"
-              >
-                {isSaving ? "Saving report..." : "Submit report"}
-              </button>
-              {saveMessage ? (
-                <p className="mt-3 rounded-md border border-green-700 bg-green-50 px-3 py-2 text-sm font-semibold text-green-800">
-                  {saveMessage}
-                </p>
-              ) : null}
-              {saveError ? (
-                <p className="mt-3 rounded-md border border-red-700 bg-red-50 px-3 py-2 text-sm font-semibold text-red-800">
-                  {saveError}
-                </p>
-              ) : null}
-            </div>
-          </dl>
-        ) : (
-          <p className="mt-4 text-sm text-slate-600">
-            Submit a message to classify crisis category, urgency, and
-            responsible authority using prototype keyword logic.
+        <h2 className="text-lg font-bold text-slate-950">Processing status</h2>
+        <p className="mt-4 text-sm leading-6 text-slate-600">
+          The report is stored exactly as submitted. Language detection,
+          translation, category, urgency, and authority assignment will remain
+          pending until the AI services are connected.
+        </p>
+        {saveMessage ? (
+          <p className="mt-5 rounded-md border border-green-700 bg-green-50 px-3 py-2 text-sm font-semibold text-green-800">
+            {saveMessage}
           </p>
-        )}
+        ) : null}
+        {saveError ? (
+          <p className="mt-5 rounded-md border border-red-700 bg-red-50 px-3 py-2 text-sm font-semibold text-red-800">
+            {saveError}
+          </p>
+        ) : null}
       </aside>
     </div>
   );

@@ -1,16 +1,25 @@
 import MapPlaceholder from "@/components/MapPlaceholder";
-import { mockDisasters } from "@/data/mockDisasters";
+import { loadCrisisReports } from "@/lib/crisis-reports";
 
-export default function MapPage() {
+export const dynamic = "force-dynamic";
+
+export default async function MapPage() {
+  const { reports, error } = await loadCrisisReports();
+
   return (
     <main className="space-y-6 px-5 py-6 md:px-8">
       <section>
         <h2 className="text-2xl font-bold text-slate-950">Crisis Map</h2>
         <p className="mt-1 text-sm text-slate-600">
-          Prototype map view showing mock incidents and urgency-coded pins.
+          Location overview generated from stored crisis reports.
         </p>
       </section>
-      <MapPlaceholder reports={mockDisasters} />
+      {error ? (
+        <p className="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">
+          {error}
+        </p>
+      ) : null}
+      <MapPlaceholder reports={reports} />
     </main>
   );
 }

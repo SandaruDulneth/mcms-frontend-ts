@@ -16,7 +16,6 @@ export default function Topbar() {
             <span className="relative inline-flex h-3 w-3 rounded-full bg-green-700" />
           </span>
           <span className="sr-only">System online</span>
-
         </div>
       </div>
     </header>

@@ -73,16 +73,6 @@ export async function GET(_request: Request, context: RouteParams) {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
 export async function PATCH(request: Request, context: RouteParams) {
   const id = await readId(context);
 
@@ -158,12 +148,6 @@ export async function PATCH(request: Request, context: RouteParams) {
     return NextResponse.json({ ok: false, message }, { status: 500 });
   }
 }
-
-
-
-
-
-
 
 export async function DELETE(request: Request, context: RouteParams) {
   const id = await readId(context);

@@ -1,10 +1,10 @@
-import type { DisasterReport } from "@/data/mockDisasters";
+import type { CrisisReportRecord } from "@/types/crisis-report";
 import UrgencyBadge from "./UrgencyBadge";
 
 export default function DisasterTable({
   reports,
 }: {
-  reports: DisasterReport[];
+  reports: CrisisReportRecord[];
 }) {
   return (
     <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -24,21 +24,37 @@ export default function DisasterTable({
             {reports.map((report) => (
               <tr key={report.id} className="align-top hover:bg-slate-50">
                 <td className="max-w-md px-4 py-4 text-slate-800">
-                  {report.message}
+                  {report.originalMessage}
                 </td>
                 <td className="px-4 py-4 font-medium text-slate-950">
-                  {report.category}
+                  {report.category || "Pending"}
                 </td>
-                <td className="px-4 py-4 text-slate-700">{report.location}</td>
+                <td className="px-4 py-4 text-slate-700">
+                  {report.location || "Not provided"}
+                </td>
                 <td className="px-4 py-4">
-                  <UrgencyBadge value={report.urgency} />
+                  <UrgencyBadge value={report.urgencyLevel} />
                 </td>
                 <td className="px-4 py-4">
                   <UrgencyBadge value={report.status} />
                 </td>
-                <td className="px-4 py-4 text-slate-600">{report.timestamp}</td>
+                <td className="px-4 py-4 text-slate-600">
+                  {report.createdAt
+                    ? new Date(report.createdAt).toLocaleString()
+                    : "Unavailable"}
+                </td>
               </tr>
             ))}
+            {reports.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="px-4 py-10 text-center text-slate-600"
+                >
+                  No crisis reports found.
+                </td>
+              </tr>
+            ) : null}
           </tbody>
         </table>
       </div>

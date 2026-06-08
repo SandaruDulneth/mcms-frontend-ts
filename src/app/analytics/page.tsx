@@ -1,9 +1,20 @@
-import { mockDisasters } from "@/data/mockDisasters";
+import { loadCrisisReports } from "@/lib/crisis-reports";
+import type { CrisisReportRecord } from "@/types/crisis-report";
 
-function countBy(field: "category" | "urgency" | "language") {
-  return mockDisasters.reduce<Record<string, number>>((accumulator, report) => {
-    accumulator[report[field]] = (accumulator[report[field]] ?? 0) + 1;
-    return accumulator;
+export const dynamic = "force-dynamic";
+
+function countBy(
+  reports: CrisisReportRecord[],
+  field: "category" | "urgencyLevel" | "detectedLanguage",
+) {
+  return reports.reduce<Record<string, number>>((counts, report) => {
+    const value = report[field];
+
+    if (value) {
+      counts[value] = (counts[value] ?? 0) + 1;
+    }
+
+    return counts;
   }, {});
 }
 
@@ -16,7 +27,8 @@ function BarList({
   data: Record<string, number>;
   tone: "red" | "amber" | "green";
 }) {
-  const max = Math.max(...Object.values(data));
+  const values = Object.values(data);
+  const max = values.length > 0 ? Math.max(...values) : 0;
   const color = {
     red: "bg-red-700",
     amber: "bg-amber-600",
@@ -36,40 +48,49 @@ function BarList({
             <div className="mt-2 h-3 rounded-sm bg-slate-200">
               <div
                 className={`h-3 rounded-sm ${color}`}
-                style={{ width: `${(value / max) * 100}%` }}
+                style={{ width: `${max > 0 ? (value / max) * 100 : 0}%` }}
               />
             </div>
           </div>
         ))}
+        {values.length === 0 ? (
+          <p className="text-sm text-slate-600">No processed data available.</p>
+        ) : null}
       </div>
     </article>
   );
 }
 
-export default function AnalyticsPage() {
+export default async function AnalyticsPage() {
+  const { reports, error } = await loadCrisisReports();
+
   return (
     <main className="space-y-6 px-5 py-6 md:px-8">
       <section>
         <h2 className="text-2xl font-bold text-slate-950">Analytics</h2>
         <p className="mt-1 text-sm text-slate-600">
-          Simple div-based charts for report category, urgency, and language
-          trends.
+          Aggregated report category, urgency, and language data.
         </p>
       </section>
+      {error ? (
+        <p className="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">
+          {error}
+        </p>
+      ) : null}
       <section className="grid gap-5 xl:grid-cols-3">
         <BarList
           title="Reports by category"
-          data={countBy("category")}
+          data={countBy(reports, "category")}
           tone="red"
         />
         <BarList
           title="Urgency distribution"
-          data={countBy("urgency")}
+          data={countBy(reports, "urgencyLevel")}
           tone="amber"
         />
         <BarList
           title="Reports by language"
-          data={countBy("language")}
+          data={countBy(reports, "detectedLanguage")}
           tone="green"
         />
       </section>

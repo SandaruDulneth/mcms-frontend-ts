@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 type CrisisReportPayload = {
   originalMessage?: unknown;
   detectedLanguage?: unknown;
+  reportedLanguage?: unknown;
   translatedMessage?: unknown;
   location?: unknown;
   sourceType?: unknown;
@@ -81,6 +82,7 @@ export async function POST(request: Request) {
     const report = await CrisisReport.create({
       originalMessage,
       detectedLanguage: readString(body.detectedLanguage),
+      reportedLanguage: readString(body.reportedLanguage),
       translatedMessage: readString(body.translatedMessage),
       location: readString(body.location),
       sourceType: readString(body.sourceType) || readString(body.source),

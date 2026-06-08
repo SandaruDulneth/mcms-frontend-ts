@@ -2,32 +2,38 @@ import Link from "next/link";
 import AlertCard from "@/components/AlertCard";
 import DisasterTable from "@/components/DisasterTable";
 import StatCard from "@/components/StatCard";
-import { mockDisasters } from "@/data/mockDisasters";
+import { loadCrisisReports } from "@/lib/crisis-reports";
 
-export default function DashboardPage() {
-  const critical = mockDisasters.filter(
-    (report) => report.urgency === "Critical",
+export const dynamic = "force-dynamic";
+
+export default async function DashboardPage() {
+  const { reports, error } = await loadCrisisReports();
+  const critical = reports.filter(
+    (report) => report.urgencyLevel === "Critical",
   );
-  const active = mockDisasters.filter((report) => report.status === "Active");
-  const resolved = mockDisasters.filter(
-    (report) => report.status === "Resolved",
-  );
+  const active = reports.filter((report) => report.status === "Active");
+  const resolved = reports.filter((report) => report.status === "Resolved");
 
   return (
     <main className="space-y-6 px-5 py-6 md:px-8">
       <section>
         <h2 className="text-2xl font-bold text-slate-950">Dashboard</h2>
         <p className="mt-1 text-sm text-slate-600">
-          Live prototype overview of multilingual crisis reports and response
-          status.
+          Current multilingual crisis reports and response status.
         </p>
       </section>
+
+      {error ? (
+        <p className="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">
+          {error}
+        </p>
+      ) : null}
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           title="Total Reports"
-          value={mockDisasters.length}
-          detail="Processed today"
+          value={reports.length}
+          detail="Stored crisis reports"
         />
         <StatCard
           title="Critical Alerts"
@@ -62,16 +68,21 @@ export default function DashboardPage() {
               View all
             </Link>
           </div>
-          <DisasterTable reports={mockDisasters.slice(0, 4)} />
+          <DisasterTable reports={reports.slice(0, 4)} />
         </div>
 
         <aside className="space-y-4">
           <h3 className="text-lg font-bold text-slate-950">
             Recent critical alerts
           </h3>
-          {critical.map((report) => (
+          {critical.slice(0, 4).map((report) => (
             <AlertCard key={report.id} report={report} />
           ))}
+          {critical.length === 0 ? (
+            <p className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm">
+              No critical alerts are currently recorded.
+            </p>
+          ) : null}
           <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
             <h3 className="font-bold text-slate-950">Quick actions</h3>
             <div className="mt-4 grid gap-3">
