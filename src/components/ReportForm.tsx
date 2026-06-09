@@ -8,7 +8,6 @@ const inputClass =
 export default function ReportForm() {
   const [message, setMessage] = useState("");
   const [location, setLocation] = useState("");
-  const [language, setLanguage] = useState("");
   const [source, setSource] = useState("");
   const [contact, setContact] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -30,7 +29,6 @@ export default function ReportForm() {
         body: JSON.stringify({
           originalMessage: message,
           location,
-          reportedLanguage: language,
           sourceType: source,
           contactInfo: contact,
         }),
@@ -52,7 +50,6 @@ export default function ReportForm() {
       );
       setMessage("");
       setLocation("");
-      setLanguage("");
       setSource("");
       setContact("");
     } catch (error) {
@@ -108,26 +105,6 @@ export default function ReportForm() {
           </div>
           <div>
             <label
-              htmlFor="language"
-              className="text-sm font-semibold text-slate-900"
-            >
-              Reported language
-            </label>
-            <select
-              id="language"
-              required
-              value={language}
-              onChange={(event) => setLanguage(event.target.value)}
-              className={inputClass}
-            >
-              <option value="">Select language</option>
-              <option>English</option>
-              <option>Sinhala</option>
-              <option>Tamil</option>
-            </select>
-          </div>
-          <div>
-            <label
               htmlFor="source"
               className="text-sm font-semibold text-slate-900"
             >
@@ -176,8 +153,8 @@ export default function ReportForm() {
         <h2 className="text-lg font-bold text-slate-950">Processing status</h2>
         <p className="mt-4 text-sm leading-6 text-slate-600">
           The report is stored exactly as submitted. Language detection,
-          translation, category, urgency, and authority assignment will remain
-          pending until the AI services are connected.
+          translation, category, urgency, and authority assignment will be
+          determined later by the AI services.
         </p>
         {saveMessage ? (
           <p className="mt-5 rounded-md border border-green-700 bg-green-50 px-3 py-2 text-sm font-semibold text-green-800">
