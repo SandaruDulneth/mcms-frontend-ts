@@ -1,106 +1,64 @@
 import Link from "next/link";
-import AlertCard from "@/components/AlertCard";
-import DisasterTable from "@/components/DisasterTable";
 import StatCard from "@/components/StatCard";
-import { loadCrisisReports } from "@/lib/crisis-reports";
 
-export const dynamic = "force-dynamic";
-
-export default async function DashboardPage() {
-  const { reports, error } = await loadCrisisReports();
-  const critical = reports.filter(
-    (report) => report.urgencyLevel === "Critical",
-  );
-  const active = reports.filter((report) => report.status === "Active");
-  const resolved = reports.filter((report) => report.status === "Resolved");
-
+export default function DashboardPage() {
   return (
     <main className="space-y-6 px-5 py-6 md:px-8">
       <section>
         <h2 className="text-2xl font-bold text-slate-950">Dashboard</h2>
         <p className="mt-1 text-sm text-slate-600">
-          Current multilingual crisis reports and response status.
+          Frontend shell ready for the Express backend.
         </p>
       </section>
-
-      {error ? (
-        <p className="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">
-          {error}
-        </p>
-      ) : null}
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           title="Total Reports"
-          value={reports.length}
-          detail="Stored crisis reports"
+          value="--"
+          detail="Connect Express API"
         />
         <StatCard
           title="Critical Alerts"
-          value={critical.length}
-          detail="Immediate action required"
+          value="--"
+          detail="Pending backend data"
           tone="red"
         />
         <StatCard
           title="Active Disasters"
-          value={active.length}
-          detail="Open incidents"
+          value="--"
+          detail="Pending backend data"
           tone="amber"
         />
         <StatCard
           title="Resolved Reports"
-          value={resolved.length}
-          detail="Closed by authorities"
+          value="--"
+          detail="Pending backend data"
           tone="green"
         />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <div>
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <h3 className="text-lg font-bold text-slate-950">
-              Disaster summary
-            </h3>
-            <Link
-              href="/disasters"
-              className="text-sm font-semibold text-slate-800 hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-slate-950"
-            >
-              View all
-            </Link>
-          </div>
-          <DisasterTable reports={reports.slice(0, 4)} />
+      <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+        <h3 className="text-lg font-bold text-slate-950">
+          Backend connection removed
+        </h3>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+          This dashboard no longer loads MongoDB data inside the Next app. We
+          can plug the Express API into this UI later.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Link
+            href="/add-report"
+            className="rounded-md bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800"
+          >
+            Add report
+          </Link>
+          <Link
+            href="/analytics"
+            className="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-slate-100"
+          >
+            View analytics
+          </Link>
         </div>
-
-        <aside className="space-y-4">
-          <h3 className="text-lg font-bold text-slate-950">
-            Recent critical alerts
-          </h3>
-          {critical.slice(0, 4).map((report) => (
-            <AlertCard key={report.id} report={report} />
-          ))}
-          {critical.length === 0 ? (
-            <p className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm">
-              No critical alerts are currently recorded.
-            </p>
-          ) : null}
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-            <h3 className="font-bold text-slate-950">Quick actions</h3>
-            <div className="mt-4 grid gap-3">
-              <Link
-                className="rounded-md bg-red-700 px-4 py-2 text-center text-sm font-semibold text-white hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-700 focus:ring-offset-2"
-                href="/add-report"
-              >
-                Add new report
-              </Link>
-              <Link
-                className="rounded-md border border-slate-300 px-4 py-2 text-center text-sm font-semibold text-slate-950 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2"
-                href="/map"
-              >
-                Open crisis map
-              </Link>
-            </div>
-          </div>
-        </aside>
       </section>
     </main>
   );

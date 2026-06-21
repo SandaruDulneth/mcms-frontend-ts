@@ -10,57 +10,16 @@ export default function ReportForm() {
   const [location, setLocation] = useState("");
   const [source, setSource] = useState("");
   const [contact, setContact] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
-  const [saveError, setSaveError] = useState<string | null>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setIsSaving(true);
     setSaveMessage(null);
-    setSaveError(null);
-
-    try {
-      const response = await fetch("/api/crisis-reports", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          originalMessage: message,
-          location,
-          sourceType: source,
-          contactInfo: contact,
-        }),
-      });
-      const data = (await response.json()) as {
-        ok?: boolean;
-        message?: string;
-        report?: { _id?: string };
-      };
-
-      if (!response.ok || !data.ok) {
-        throw new Error(data.message || "Failed to save crisis report.");
-      }
-
-      setSaveMessage(
-        data.report?._id
-          ? `Report saved. Reference ID: ${data.report._id}`
-          : "Report saved.",
-      );
-      setMessage("");
-      setLocation("");
-      setSource("");
-      setContact("");
-    } catch (error) {
-      setSaveError(
-        error instanceof Error
-          ? error.message
-          : "Failed to save crisis report.",
-      );
-    } finally {
-      setIsSaving(false);
-    }
+    setSaveMessage("Report prepared locally. Connect Express to persist it.");
+    setMessage("");
+    setLocation("");
+    setSource("");
+    setContact("");
   }
 
   return (
@@ -142,28 +101,22 @@ export default function ReportForm() {
         </div>
         <button
           type="submit"
-          disabled={isSaving}
           className="mt-6 rounded-md bg-red-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-700 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-400"
         >
-          {isSaving ? "Saving report..." : "Submit report"}
+          Submit report
         </button>
       </form>
 
       <aside className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-bold text-slate-950">Processing status</h2>
         <p className="mt-4 text-sm leading-6 text-slate-600">
-          The report is stored exactly as submitted. Language detection,
-          translation, category, urgency, and authority assignment will be
-          determined later by the AI services.
+          The report is kept local for now. Language detection, translation,
+          category, urgency, and authority assignment will be determined later
+          by the AI services.
         </p>
         {saveMessage ? (
           <p className="mt-5 rounded-md border border-green-700 bg-green-50 px-3 py-2 text-sm font-semibold text-green-800">
             {saveMessage}
-          </p>
-        ) : null}
-        {saveError ? (
-          <p className="mt-5 rounded-md border border-red-700 bg-red-50 px-3 py-2 text-sm font-semibold text-red-800">
-            {saveError}
           </p>
         ) : null}
       </aside>
