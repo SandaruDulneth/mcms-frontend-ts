@@ -29,6 +29,7 @@ export type UserReportRecord = {
   messageTypeConfidence?: number;
   urgencyLevel?: ReportUrgencyLevel;
   urgencyConfidence?: number;
+  extractedLocations?: string[];
   affectedCommunities: string[];
   summary?: string;
   latencyMs?: number;
@@ -47,3 +48,4 @@ export type ApiResponse<T> = {
   success: boolean;
   data: T;
 };
+

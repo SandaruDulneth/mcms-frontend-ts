@@ -18,16 +18,36 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
+function DetailChips({
+  emptyLabel,
+  items,
+}: {
+  emptyLabel: string;
+  items?: string[];
+}) {
+  if (!items || items.length === 0) {
+    return <p className="mt-2 text-sm font-bold text-slate-950">{emptyLabel}</p>;
+  }
+
+  return (
+    <div className="mt-2 flex flex-wrap gap-2">
+      {items.map((item) => (
+        <span
+          key={item}
+          className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700"
+        >
+          {item}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 type ReportCardProps = {
   report: UserReportRecord;
 };
 
 export default function ReportCard({ report }: ReportCardProps) {
-  const communities =
-    report.affectedCommunities.length > 0
-      ? report.affectedCommunities.join(", ")
-      : "null";
-
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -79,25 +99,27 @@ export default function ReportCard({ report }: ReportCardProps) {
         </div>
         <div className="rounded-lg border border-slate-100 bg-slate-50 p-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Location
+            User location
           </p>
           <p className="mt-1 text-sm font-bold text-slate-950">
-            {report.location ?? "Unknown"}
+            {report.location ?? "Not provided"}
           </p>
         </div>
         <div className="rounded-lg border border-slate-100 bg-slate-50 p-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
             Communities
           </p>
-          <p className="mt-1 text-sm font-bold text-slate-950">{communities}</p>
+          <DetailChips emptyLabel="null" items={report.affectedCommunities} />
         </div>
       </div>
 
-      {report.summary ? (
-        <p className="mt-5 rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-950">
-          {report.summary}
+      <div className="mt-3 rounded-lg border border-slate-100 bg-slate-50 p-3">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+          AI extracted locations
         </p>
-      ) : null}
+        <DetailChips emptyLabel="null" items={report.extractedLocations} />
+      </div>
+
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
         <span>Source: {report.sourceType}</span>

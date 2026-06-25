@@ -74,15 +74,14 @@ export default function ReportForm() {
               htmlFor="location"
               className="text-sm font-semibold text-slate-900"
             >
-              Location
+              Location optional
             </label>
             <input
               id="location"
-              required
               value={location}
               onChange={(event) => setLocation(event.target.value)}
               className={inputClass}
-              placeholder="District, city, or landmark"
+              placeholder="District, city, or landmark if known"
             />
           </div>
           <div className="rounded-md border border-blue-100 bg-blue-50 px-4 py-3">
@@ -143,3 +142,4 @@ export default function ReportForm() {
     </div>
   );
 }
+
