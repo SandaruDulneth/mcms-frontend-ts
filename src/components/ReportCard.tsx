@@ -1,10 +1,10 @@
 import UrgencyBadge from "@/components/UrgencyBadge";
 import UrgencyGauge from "@/components/UrgencyGauge";
+import ResponderButton from "@/components/ResponderButton";
 import type { UserReportRecord } from "@/types/user-report";
 
 function formatLabel(value?: string) {
   if (!value) return "Pending analysis";
-
   return value
     .split("_")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
@@ -28,7 +28,6 @@ function DetailChips({
   if (!items || items.length === 0) {
     return <p className="mt-2 text-sm font-bold text-slate-950">{emptyLabel}</p>;
   }
-
   return (
     <div className="mt-2 flex flex-wrap gap-2">
       {items.map((item) => (
@@ -50,6 +49,7 @@ type ReportCardProps = {
 export default function ReportCard({ report }: ReportCardProps) {
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      {/* ── Top section ─────────────────────────────────────────────── */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -74,6 +74,7 @@ export default function ReportCard({ report }: ReportCardProps) {
         </div>
       </div>
 
+      {/* ── Detail chips ─────────────────────────────────────────────── */}
       <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-lg border border-slate-100 bg-slate-50 p-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
@@ -86,6 +87,7 @@ export default function ReportCard({ report }: ReportCardProps) {
             {report.crisisConfidence?.toFixed(1) ?? "0.0"}% confidence
           </p>
         </div>
+
         <div className="rounded-lg border border-slate-100 bg-slate-50 p-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
             Message type
@@ -97,6 +99,7 @@ export default function ReportCard({ report }: ReportCardProps) {
             {report.messageTypeConfidence?.toFixed(1) ?? "0.0"}% confidence
           </p>
         </div>
+
         <div className="rounded-lg border border-slate-100 bg-slate-50 p-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
             User location
@@ -105,26 +108,34 @@ export default function ReportCard({ report }: ReportCardProps) {
             {report.location ?? "Not provided"}
           </p>
         </div>
+
         <div className="rounded-lg border border-slate-100 bg-slate-50 p-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
             Communities
           </p>
-          <DetailChips emptyLabel="null" items={report.affectedCommunities} />
+          <DetailChips
+            emptyLabel="None identified"
+            items={report.affectedCommunities}
+          />
         </div>
       </div>
 
+      {/* ── AI extracted locations ───────────────────────────────────── */}
       <div className="mt-3 rounded-lg border border-slate-100 bg-slate-50 p-3">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
           AI extracted locations
         </p>
-        <DetailChips emptyLabel="null" items={report.extractedLocations} />
+        <DetailChips emptyLabel="None detected" items={report.extractedLocations} />
       </div>
 
-
+      {/* ── Footer ──────────────────────────────────────────────────── */}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
         <span>Source: {report.sourceType}</span>
         <span>Created: {formatDate(report.createdAt)}</span>
       </div>
+
+      {/* ── Responder section ────────────────────────────────────────── */}
+      <ResponderButton reportId={report._id} status={report.status} />
     </article>
   );
 }
