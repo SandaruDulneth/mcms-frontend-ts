@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import Sidebar from "@/components/Sidebar";
-import Topbar from "@/components/Topbar";
+import AdminLayoutShell from "@/components/admin/AdminLayoutShell";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,14 +15,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div className="min-h-screen bg-slate-100 lg:flex">
-          <Sidebar />
-          <div className="min-w-0 flex-1">
-            <Topbar />
-            {children}
-          </div>
-        </div>
+        <AdminLayoutShell>{children}</AdminLayoutShell>
       </body>
     </html>
   );
 }
+
