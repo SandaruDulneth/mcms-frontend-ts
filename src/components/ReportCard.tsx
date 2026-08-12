@@ -1,7 +1,7 @@
 import UrgencyBadge from "@/components/UrgencyBadge";
 import UrgencyGauge from "@/components/UrgencyGauge";
 import ResponderButton from "@/components/ResponderButton";
-import type { UserReportRecord } from "@/types/user-report";
+import type { UserReportRecord, CredibilityLabel } from "@/types/user-report";
 
 function formatLabel(value?: string) {
   if (!value) return "Pending analysis";
@@ -38,6 +38,81 @@ function DetailChips({
           {item}
         </span>
       ))}
+    </div>
+  );
+}
+
+// ── Credibility badge ─────────────────────────────────────────────────────────
+const CREDIBILITY_STYLES: Record<CredibilityLabel, { bg: string; text: string; icon: string }> = {
+  High  : { bg: 'bg-green-50  border-green-200', text: 'text-green-700', icon: '✅' },
+  Medium: { bg: 'bg-amber-50  border-amber-200', text: 'text-amber-700', icon: '⚠️' },
+  Low   : { bg: 'bg-red-50    border-red-200',   text: 'text-red-700',   icon: '❌' },
+};
+
+function CredibilityBadge({ report }: { report: UserReportRecord }) {
+  // If credibility hasn't been calculated yet, show nothing
+  if (report.credibilityScore === undefined || !report.credibilityLabel) return null;
+
+  const style   = CREDIBILITY_STYLES[report.credibilityLabel];
+  const sources = report.credibilitySources;
+
+  return (
+    <div className={`mt-3 rounded-lg border p-3 ${style.bg}`}>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <p className={`text-xs font-semibold uppercase tracking-wide ${style.text}`}>
+            Credibility
+          </p>
+          <span className={`rounded-full border px-2.5 py-0.5 text-xs font-bold ${style.bg} ${style.text}`}>
+            {style.icon} {report.credibilityLabel} — {report.credibilityScore}/100
+          </span>
+        </div>
+      </div>
+
+      {/* Credibility source indicators */}
+      {sources && (
+        <div className="mt-2 flex flex-wrap gap-2">
+          {/* News match */}
+          {sources.newsHeadline ? (
+            <a
+              href={sources.newsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600 hover:text-blue-600 hover:underline"
+            >
+              📰 {sources.newsHeadline.length > 50
+                ? `${sources.newsHeadline.slice(0, 50)}…`
+                : sources.newsHeadline}
+            </a>
+          ) : (
+            <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs text-slate-400">
+              📰 No matching news found
+            </span>
+          )}
+
+          {/* ReliefWeb match */}
+          {sources.reliefWebMatch ? (
+            <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+              🌐 ReliefWeb: {sources.reliefWebMatch}
+            </span>
+          ) : (
+            <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs text-slate-400">
+              🌐 No ReliefWeb declaration
+            </span>
+          )}
+
+          {/* Similar reports */}
+          <span className={`rounded-full border px-2.5 py-1 text-xs font-medium ${
+            sources.similarReports > 0
+              ? 'border-green-200 bg-green-50 text-green-700'
+              : 'border-slate-200 bg-white text-slate-400'
+          }`}>
+            👥 {sources.similarReports > 0
+              ? `${sources.similarReports} similar report${sources.similarReports > 1 ? 's' : ''} in 48h`
+              : 'No similar reports'}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
@@ -127,6 +202,9 @@ export default function ReportCard({ report }: ReportCardProps) {
         </p>
         <DetailChips emptyLabel="None detected" items={report.extractedLocations} />
       </div>
+
+      {/* ── Credibility badge ────────────────────────────────────────── */}
+      <CredibilityBadge report={report} />
 
       {/* ── Footer ──────────────────────────────────────────────────── */}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">

@@ -14,38 +14,55 @@ export const reportStatuses = [
   "Resolved",
 ] as const;
 
-export type ReportSourceType = (typeof reportSourceTypes)[number];
-export type ReportUrgencyLevel = (typeof reportUrgencyLevels)[number];
-export type ReportStatus = (typeof reportStatuses)[number];
+export const credibilityLabels = ["High", "Medium", "Low"] as const;
 
-// One geocoded location — matches the Node backend's IGeoLocation interface
+export type ReportSourceType   = (typeof reportSourceTypes)[number];
+export type ReportUrgencyLevel = (typeof reportUrgencyLevels)[number];
+export type ReportStatus       = (typeof reportStatuses)[number];
+export type CredibilityLabel   = (typeof credibilityLabels)[number];
+
+// One geocoded location
 export type GeoLocation = {
   name       : string;
   lat        : number;
   lng        : number;
   displayName: string;
-  source     : string;  // "spacy_ner" | "gazetteer"
+  source     : string;
+};
+
+// Sources used to calculate credibility score
+export type CredibilitySources = {
+  newsHeadline   : string;   // matching news article title
+  newsUrl        : string;   // link to article
+  reliefWebMatch : string;   // matching ReliefWeb disaster name
+  similarReports : number;   // similar reports in last 48h
 };
 
 export type UserReportRecord = {
-  _id                  : string;
-  message              : string;
-  location?            : string;
-  sourceType           : ReportSourceType;
-  crisisType?          : string;
-  crisisConfidence?    : number;
-  messageType?         : string;
+  _id                   : string;
+  message               : string;
+  location?             : string;
+  sourceType            : ReportSourceType;
+  crisisType?           : string;
+  crisisConfidence?     : number;
+  messageType?          : string;
   messageTypeConfidence?: number;
-  urgencyLevel?        : ReportUrgencyLevel;
-  urgencyConfidence?   : number;
-  extractedLocations?  : string[];
-  extractedLocationsGeo?: GeoLocation[];   // ← new: lat/lng for map
-  affectedCommunities  : string[];
-  summary?             : string;
-  latencyMs?           : number;
-  status               : ReportStatus;
-  createdAt            : string;
-  updatedAt            : string;
+  urgencyLevel?         : ReportUrgencyLevel;
+  urgencyConfidence?    : number;
+  extractedLocations?   : string[];
+  extractedLocationsGeo?: GeoLocation[];
+  affectedCommunities   : string[];
+  summary?              : string;
+  latencyMs?            : number;
+  status                : ReportStatus;
+
+  // ── Credibility fields ───────────────────────────────────────────────────
+  credibilityScore?     : number;             // 0–100
+  credibilityLabel?     : CredibilityLabel;   // High | Medium | Low
+  credibilitySources?   : CredibilitySources;
+
+  createdAt : string;
+  updatedAt : string;
 };
 
 export type UserReportCreateInput = {
