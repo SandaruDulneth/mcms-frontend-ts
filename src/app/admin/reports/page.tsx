@@ -1,10 +1,10 @@
-import { getReports } from "@/lib/reportApi";
+import { getAdminReports } from "@/lib/adminApi";
 import ReportsTable from "@/components/admin/ReportsTable";
 
 export default async function AdminReportsPage() {
   let reports;
   try {
-    reports = await getReports();
+    reports = await getAdminReports();
   } catch {
     return (
       <main className="px-5 py-6 md:px-8">
@@ -25,7 +25,7 @@ export default async function AdminReportsPage() {
       <section>
         <h2 className="text-2xl font-bold text-slate-950">Manage Reports</h2>
         <p className="mt-1 text-sm text-slate-600">
-          View, filter, update status, and delete crisis reports
+          Review credibility, approve real disasters, update status, and delete reports
         </p>
       </section>
 

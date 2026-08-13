@@ -28,6 +28,12 @@ export async function getAdminStats(): Promise<AdminStats> {
   return parseApiResponse<AdminStats>(response);
 }
 
+export async function getAdminReports(): Promise<UserReportRecord[]> {
+  const response = await fetch(`${apiBaseUrl}/api/admin/reports`, {
+    cache: "no-store",
+  });
+  return parseApiResponse<UserReportRecord[]>(response);
+}
 // ── All responders (admin view) ──────────────────────────────────────────────
 
 export async function getAllResponders(): Promise<Responder[]> {

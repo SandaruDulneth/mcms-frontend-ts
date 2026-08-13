@@ -90,14 +90,14 @@ function CredibilityBadge({ report }: { report: UserReportRecord }) {
             </span>
           )}
 
-          {/* ReliefWeb match */}
-          {sources.reliefWebMatch ? (
+          {/* GDACS match */}
+          {sources.gdacsMatch ? (
             <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
-              🌐 ReliefWeb: {sources.reliefWebMatch}
+              🌐 GDACS: {sources.gdacsMatch}
             </span>
           ) : (
             <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs text-slate-400">
-              🌐 No ReliefWeb declaration
+              🌐 No GDACS alert
             </span>
           )}
 
@@ -119,9 +119,10 @@ function CredibilityBadge({ report }: { report: UserReportRecord }) {
 
 type ReportCardProps = {
   report: UserReportRecord;
+  showCredibility?: boolean;
 };
 
-export default function ReportCard({ report }: ReportCardProps) {
+export default function ReportCard({ report, showCredibility = false }: ReportCardProps) {
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       {/* ── Top section ─────────────────────────────────────────────── */}
@@ -204,7 +205,7 @@ export default function ReportCard({ report }: ReportCardProps) {
       </div>
 
       {/* ── Credibility badge ────────────────────────────────────────── */}
-      <CredibilityBadge report={report} />
+      {showCredibility ? <CredibilityBadge report={report} /> : null}
 
       {/* ── Footer ──────────────────────────────────────────────────── */}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
@@ -217,3 +218,4 @@ export default function ReportCard({ report }: ReportCardProps) {
     </article>
   );
 }
+

@@ -2,13 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type {
-  UserReportRecord,
-  ReportStatus,
-  ReportUrgencyLevel,
-} from "@/types/user-report";
+import type { CredibilityLabel, ReportStatus, UserReportRecord } from "@/types/user-report";
 import { reportStatuses, reportUrgencyLevels } from "@/types/user-report";
-import { updateReportStatus, deleteReport } from "@/lib/adminApi";
+import { deleteReport, updateReportStatus } from "@/lib/adminApi";
 import StatusDropdown from "@/components/admin/StatusDropdown";
 
 type ReportsTableProps = {
@@ -24,6 +20,12 @@ const urgencyStyles: Record<string, string> = {
   Low: "border-green-700 bg-green-50 text-green-700",
 };
 
+const credibilityStyles: Record<CredibilityLabel, string> = {
+  High: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  Medium: "border-amber-200 bg-amber-50 text-amber-700",
+  Low: "border-red-200 bg-red-50 text-red-700",
+};
+
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en", {
     dateStyle: "medium",
@@ -31,29 +33,60 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
+function formatLabel(value?: string) {
+  if (!value) return "Pending analysis";
+  return value.replaceAll("_", " ");
+}
+
+function CredibilityCell({ report }: { report: UserReportRecord }) {
+  if (report.credibilityScore === undefined || !report.credibilityLabel) {
+    return (
+      <div className="space-y-1">
+        <span className="inline-flex rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-semibold text-slate-500">
+          Waiting
+        </span>
+        <p className="text-xs text-slate-400">AI/credibility not ready</p>
+      </div>
+    );
+  }
+
+  const sources = report.credibilitySources;
+
+  return (
+    <div className="space-y-1.5">
+      <span
+        className={`inline-flex rounded-md border px-2 py-0.5 text-xs font-bold ${
+          credibilityStyles[report.credibilityLabel]
+        }`}
+      >
+        {report.credibilityLabel} · {report.credibilityScore}/100
+      </span>
+      {sources ? (
+        <div className="space-y-0.5 text-xs text-slate-500">
+          <p>{sources.newsHeadline ? "News match found" : "No news match"}</p>
+          <p>{sources.gdacsMatch ? "GDACS alert found" : "No GDACS alert"}</p>
+          <p>{sources.similarReports} similar report{sources.similarReports === 1 ? "" : "s"}</p>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 export default function ReportsTable({ initialReports }: ReportsTableProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<string>("All");
+  const [activeTab, setActiveTab] = useState<string>("Pending");
   const [urgencyFilter, setUrgencyFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // ── Filtering ──────────────────────────────────────────────────
   const filtered = initialReports.filter((report) => {
     if (activeTab !== "All" && report.status !== activeTab) return false;
-    if (
-      urgencyFilter !== "All" &&
-      report.urgencyLevel !== urgencyFilter
-    )
+    if (urgencyFilter !== "All" && report.urgencyLevel !== urgencyFilter) return false;
+    if (searchQuery && !report.message.toLowerCase().includes(searchQuery.toLowerCase())) {
       return false;
-    if (
-      searchQuery &&
-      !report.message.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-      return false;
+    }
     return true;
   });
 
-  // ── Handlers ───────────────────────────────────────────────────
   async function handleStatusChange(id: string, newStatus: ReportStatus) {
     await updateReportStatus(id, newStatus);
     router.refresh();
@@ -71,9 +104,14 @@ export default function ReportsTable({ initialReports }: ReportsTableProps) {
 
   return (
     <div className="space-y-4">
-      {/* ── Filters bar ─────────────────────────────────────────── */}
+      <div className="rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-800">
+        <p className="font-semibold">Admin review flow</p>
+        <p className="mt-1 text-blue-700">
+          New reports stay Pending. Check credibility and AI details, then approve real disasters by setting status to Active.
+        </p>
+      </div>
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        {/* Status tabs */}
         <div className="flex flex-wrap gap-1">
           {STATUS_TABS.map((tab) => (
             <button
@@ -82,7 +120,7 @@ export default function ReportsTable({ initialReports }: ReportsTableProps) {
               className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
                 activeTab === tab
                   ? "bg-slate-950 text-white"
-                  : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+                  : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-100"
               }`}
             >
               {tab}
@@ -91,7 +129,6 @@ export default function ReportsTable({ initialReports }: ReportsTableProps) {
         </div>
 
         <div className="flex gap-2">
-          {/* Urgency filter */}
           <select
             value={urgencyFilter}
             onChange={(e) => setUrgencyFilter(e.target.value)}
@@ -105,7 +142,6 @@ export default function ReportsTable({ initialReports }: ReportsTableProps) {
             ))}
           </select>
 
-          {/* Search */}
           <div className="relative">
             <svg
               className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400"
@@ -131,16 +167,11 @@ export default function ReportsTable({ initialReports }: ReportsTableProps) {
         </div>
       </div>
 
-      {/* ── Table ────────────────────────────────────────────────── */}
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
         {filtered.length === 0 ? (
           <div className="px-6 py-12 text-center">
-            <p className="text-lg font-semibold text-slate-700">
-              No reports found
-            </p>
-            <p className="mt-1 text-sm text-slate-500">
-              Try adjusting your filters or search query.
-            </p>
+            <p className="text-lg font-semibold text-slate-700">No reports found</p>
+            <p className="mt-1 text-sm text-slate-500">Try adjusting your filters or search query.</p>
           </div>
         ) : (
           <table className="w-full text-left text-sm">
@@ -149,6 +180,7 @@ export default function ReportsTable({ initialReports }: ReportsTableProps) {
                 <th className="px-4 py-3">Message</th>
                 <th className="px-4 py-3">Crisis Type</th>
                 <th className="px-4 py-3">Urgency</th>
+                <th className="px-4 py-3">Credibility</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3">Created</th>
                 <th className="px-4 py-3">Actions</th>
@@ -156,50 +188,61 @@ export default function ReportsTable({ initialReports }: ReportsTableProps) {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filtered.map((report) => (
-                <tr
-                  key={report._id}
-                  className="transition-colors hover:bg-slate-50/50"
-                >
+                <tr key={report._id} className="transition-colors hover:bg-slate-50/50">
                   <td className="max-w-xs px-4 py-3">
-                    <p className="truncate font-medium text-slate-800">
-                      {report.message}
+                    <p className="truncate font-medium text-slate-800">{report.message}</p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {report.location ?? report.extractedLocations?.join(", ") ?? "No location"}
                     </p>
                   </td>
                   <td className="px-4 py-3">
                     <span className="whitespace-nowrap capitalize text-slate-700">
-                      {report.crisisType?.replaceAll("_", " ") ?? "—"}
+                      {formatLabel(report.crisisType)}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     {report.urgencyLevel ? (
                       <span
-                        className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-semibold ${urgencyStyles[report.urgencyLevel] ?? "border-slate-300 bg-slate-50 text-slate-600"}`}
+                        className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-semibold ${
+                          urgencyStyles[report.urgencyLevel] ?? "border-slate-300 bg-slate-50 text-slate-600"
+                        }`}
                       >
                         {report.urgencyLevel}
                       </span>
                     ) : (
-                      <span className="text-slate-400">—</span>
+                      <span className="text-slate-400">Pending</span>
                     )}
+                  </td>
+                  <td className="px-4 py-3">
+                    <CredibilityCell report={report} />
                   </td>
                   <td className="px-4 py-3">
                     <StatusDropdown
                       currentStatus={report.status}
                       options={reportStatuses}
-                      onStatusChange={(s) =>
-                        handleStatusChange(report._id, s as ReportStatus)
-                      }
+                      onStatusChange={(status) => handleStatusChange(report._id, status as ReportStatus)}
                     />
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-500">
                     {formatDate(report.createdAt)}
                   </td>
                   <td className="px-4 py-3">
-                    <button
-                      onClick={() => handleDelete(report._id)}
-                      className="rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
-                    >
-                      Delete
-                    </button>
+                    <div className="flex flex-wrap gap-2">
+                      {report.status === "Pending" ? (
+                        <button
+                          onClick={() => handleStatusChange(report._id, "Active")}
+                          className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100"
+                        >
+                          Approve
+                        </button>
+                      ) : null}
+                      <button
+                        onClick={() => handleDelete(report._id)}
+                        className="rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -208,10 +251,10 @@ export default function ReportsTable({ initialReports }: ReportsTableProps) {
         )}
       </div>
 
-      {/* ── Results count ────────────────────────────────────────── */}
       <p className="text-xs text-slate-500">
         Showing {filtered.length} of {initialReports.length} reports
       </p>
     </div>
   );
 }
+

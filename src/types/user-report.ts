@@ -34,7 +34,9 @@ export type GeoLocation = {
 export type CredibilitySources = {
   newsHeadline   : string;   // matching news article title
   newsUrl        : string;   // link to article
-  reliefWebMatch : string;   // matching ReliefWeb disaster name
+  gdacsMatch     : string;   // matching GDACS disaster alert title
+  gdacsUrl       : string;   // link to matching GDACS alert
+  gdacsAlertLevel: string;   // GDACS alert level
   similarReports : number;   // similar reports in last 48h
 };
 
@@ -75,3 +77,4 @@ export type ApiResponse<T> = {
   success: boolean;
   data   : T;
 };
+
