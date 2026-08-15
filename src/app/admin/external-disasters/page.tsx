@@ -15,7 +15,7 @@ export default async function AdminExternalDisastersPage() {
             Verified Disaster Signals
           </h2>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-            Admin view of NewsAPI and GDACS signals for Sri Lanka. Use this as evidence when reviewing pending user reports and deciding whether to activate a disaster report.
+            Admin view of NewsAPI and GDACS signals for {feed.country}. Use this as evidence when reviewing pending user reports and deciding whether to activate a disaster report.
           </p>
         </section>
 

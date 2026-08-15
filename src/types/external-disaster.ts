@@ -15,7 +15,7 @@ export type ExternalDisasterItem = {
 
 export type ExternalDisasterFeed = {
   fetchedAt: string;
-  country: "Sri Lanka";
+  country: string;
   items: ExternalDisasterItem[];
   sources: {
     newsApi: {

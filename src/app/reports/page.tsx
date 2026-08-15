@@ -12,10 +12,10 @@ export default async function ReportsPage() {
             External disaster intelligence
           </p>
           <h2 className="mt-1 text-2xl font-bold text-slate-950">
-            Sri Lanka Disaster Reports
+            {feed.country} Disaster Reports
           </h2>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-            Current disaster signals collected from GDACS and NewsAPI. This helps compare real-world events against citizen reports before operational decisions are made.
+            Current disaster signals collected from GDACS and NewsAPI for {feed.country}. This helps compare real-world events against citizen reports before operational decisions are made.
           </p>
         </section>
 

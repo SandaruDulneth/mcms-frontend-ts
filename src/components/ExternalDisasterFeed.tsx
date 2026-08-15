@@ -149,14 +149,14 @@ export default function ExternalDisasterFeedView({ feed, variant = "public" }: E
           {variant === "admin" ? "Operator note" : "How to use this page"}
         </p>
         <p className="mt-1 leading-6">
-          These are external disaster signals from NewsAPI and GDACS for Sri Lanka. Use them as supporting evidence together with user-submitted reports and credibility scores.
+          These are external disaster signals from NewsAPI and GDACS for {feed.country}. Use them as supporting evidence together with user-submitted reports and credibility scores.
         </p>
         <p className="mt-2 text-xs text-slate-500">Last checked: {formatDate(feed.fetchedAt)}</p>
       </section>
 
       {feed.items.length === 0 ? (
         <div className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm">
-          <h3 className="text-lg font-bold text-slate-950">No external disaster signals found</h3>
+          <h3 className="text-lg font-bold text-slate-950">No active external disaster signals found</h3>
           <p className="mt-2 text-sm text-slate-600">
             Check the backend logs, GDACS availability, or NEWS_API_KEY configuration if you expected results.
           </p>
