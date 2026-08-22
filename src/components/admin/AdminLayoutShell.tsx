@@ -18,11 +18,14 @@ export default function AdminLayoutShell({
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 lg:flex">
+    <div className="flex h-screen overflow-hidden bg-slate-100">
+      {/* Pinned Fixed Sidebar */}
       <Sidebar />
-      <div className="min-w-0 flex-1">
+
+      {/* Main Content Area — independent vertical scroll */}
+      <div className="flex flex-1 flex-col overflow-y-auto min-w-0">
         <Topbar />
-        {children}
+        <div className="flex-1">{children}</div>
       </div>
     </div>
   );

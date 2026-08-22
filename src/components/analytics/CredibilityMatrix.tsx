@@ -1,5 +1,6 @@
 "use client";
 
+import { ShieldCheck, Cpu, CheckCircle2, AlertCircle } from "lucide-react";
 import type { UserReportRecord } from "@/types/user-report";
 
 type CredibilityMatrixProps = {
@@ -24,41 +25,48 @@ export default function CredibilityMatrix({ reports }: CredibilityMatrixProps) {
     }
   });
 
+  const totalReports = reports.length;
   const avgConfidence = confidenceReportCount > 0 ? (totalConfidenceSum / confidenceReportCount).toFixed(1) : "95.4";
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-      <div className="border-b border-slate-100 pb-3">
-        <h3 className="text-base font-bold text-slate-950">AI Credibility Matrix</h3>
-        <p className="mt-0.5 text-xs text-slate-500">NLP classification & credibility stats</p>
+    <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm shadow-slate-900/5">
+      <div className="border-b border-slate-100 pb-4">
+        <h3 className="text-base font-bold text-slate-900">AI Credibility & Confidence Matrix</h3>
+        <p className="text-xs text-slate-500 mt-0.5">Automated NLP & cross-source verification stats</p>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
-          <p className="text-xs font-semibold text-slate-600">Avg Crisis Confidence</p>
-          <p className="mt-2 text-2xl font-bold text-slate-950">{avgConfidence}%</p>
-          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">Avg Crisis Confidence</span>
+            <ShieldCheck className="h-4 w-4 text-emerald-600" />
+          </div>
+          <p className="mt-2 text-2xl font-extrabold text-slate-900">{avgConfidence}%</p>
+          <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-100">
             <div
-              className="h-full bg-blue-600 transition-all duration-300"
+              className="h-full bg-emerald-500 transition-all duration-500"
               style={{ width: `${Math.min(100, Number(avgConfidence))}%` }}
             />
           </div>
         </div>
 
-        <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
-          <p className="text-xs font-semibold text-slate-600">Credibility Distribution</p>
-          <div className="mt-2.5 space-y-1 text-xs">
-            <div className="flex justify-between text-slate-800">
-              <span>High Credibility:</span>
-              <span className="font-bold">{highCredCount}</span>
+        <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">Credibility Distribution</span>
+            <CheckCircle2 className="h-4 w-4 text-blue-600" />
+          </div>
+          <div className="mt-3 space-y-1.5 text-xs font-semibold">
+            <div className="flex justify-between text-emerald-700">
+              <span>High Credibility</span>
+              <span>{highCredCount}</span>
             </div>
-            <div className="flex justify-between text-slate-800">
-              <span>Medium Credibility:</span>
-              <span className="font-bold">{medCredCount}</span>
+            <div className="flex justify-between text-amber-700">
+              <span>Medium Credibility</span>
+              <span>{medCredCount}</span>
             </div>
-            <div className="flex justify-between text-slate-800">
-              <span>Low / Unverified:</span>
-              <span className="font-bold">{lowCredCount}</span>
+            <div className="flex justify-between text-slate-600">
+              <span>Low Credibility / Unverified</span>
+              <span>{lowCredCount}</span>
             </div>
           </div>
         </div>

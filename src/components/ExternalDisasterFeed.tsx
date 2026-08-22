@@ -1,3 +1,5 @@
+import StatCard from "@/components/StatCard";
+import { Globe, Newspaper } from "lucide-react";
 import type { ExternalDisasterFeed, ExternalDisasterItem } from "@/types/external-disaster";
 
 type ExternalDisasterFeedProps = {
@@ -26,49 +28,26 @@ function formatType(value: string) {
 }
 
 function SourceHealth({ feed }: { feed: ExternalDisasterFeed }) {
-  const sources = [
-    {
-      label: "GDACS",
-      enabled: feed.sources.gdacs.enabled,
-      count: feed.sources.gdacs.itemCount,
-      error: feed.sources.gdacs.error,
-    },
-    {
-      label: "NewsAPI",
-      enabled: feed.sources.newsApi.enabled,
-      count: feed.sources.newsApi.itemCount,
-      error: feed.sources.newsApi.error,
-    },
-  ];
-
   return (
-    <div className="grid gap-3 md:grid-cols-2">
-      {sources.map((source) => (
-        <div
-          key={source.label}
-          className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-        >
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-sm font-bold text-slate-950">{source.label}</p>
-            <span
-              className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                source.enabled && !source.error
-                  ? "bg-green-50 text-green-700"
-                  : "bg-amber-50 text-amber-700"
-              }`}
-            >
-              {source.enabled ? "Enabled" : "Not configured"}
-            </span>
-          </div>
-          <p className="mt-2 text-2xl font-bold text-slate-950">{source.count}</p>
-          <p className="mt-1 text-xs text-slate-500">items returned</p>
-          {source.error ? (
-            <p className="mt-2 rounded-md bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700">
-              {source.error}
-            </p>
-          ) : null}
-        </div>
-      ))}
+    <div className="grid gap-4 md:grid-cols-2">
+      <StatCard
+        title="GDACS Feeds"
+        value={feed.sources.gdacs.itemCount}
+        detail={feed.sources.gdacs.enabled ? "Global Disaster Alert System (Active)" : "Not Configured"}
+        tone="blue"
+        icon={Globe}
+        trend={feed.sources.gdacs.enabled ? "Active" : "Disabled"}
+        trendUp={feed.sources.gdacs.enabled}
+      />
+      <StatCard
+        title="NewsAPI Intelligence"
+        value={feed.sources.newsApi.itemCount}
+        detail={feed.sources.newsApi.enabled ? "International News Feeds (Active)" : "Not Configured"}
+        tone="green"
+        icon={Newspaper}
+        trend={feed.sources.newsApi.enabled ? "Active" : "Disabled"}
+        trendUp={feed.sources.newsApi.enabled}
+      />
     </div>
   );
 }

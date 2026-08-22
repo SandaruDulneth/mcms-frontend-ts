@@ -2,54 +2,86 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  AlertTriangle,
+  PlusCircle,
+  MapPin,
+  Radio,
+  BarChart3,
+  FileText,
+} from "lucide-react";
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/disasters", label: "Ongoing Disasters" },
-  { href: "/add-report", label: "Add Crisis Report" },
-  { href: "/map", label: "Crisis Map" },
-  { href: "/authorities", label: "Authorities" },
-  { href: "/analytics", label: "Analytics" },
-  { href: "/reports", label: "Reports" },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/disasters", label: "Ongoing Disasters", icon: AlertTriangle },
+  { href: "/add-report", label: "Add Crisis Report", icon: PlusCircle },
+  { href: "/map", label: "Crisis Map", icon: MapPin },
+  { href: "/authorities", label: "Authorities", icon: Radio },
+  { href: "/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/reports", label: "Reports", icon: FileText },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="bg-slate-950 text-white lg:min-h-screen lg:w-72">
+    <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:shrink-0 bg-slate-950 text-white h-full border-r border-slate-800 select-none">
+      {/* ── Sidebar Header (No Icon Logo) ─────────────────────────────────── */}
       <div className="border-b border-slate-800 p-5">
         <Link
           href="/"
-          className="block focus:outline-none focus:ring-2 focus:ring-white"
+          className="block focus:outline-none focus:ring-2 focus:ring-white rounded-lg p-1"
         >
-          <span className="text-xl font-bold tracking-tight">MCMS</span>
-          <span className="mt-1 block text-sm text-slate-300">
+          <span className="text-xl font-extrabold tracking-tight text-white block leading-tight">
+            MCMS
+          </span>
+          <span className="text-xs text-slate-400 block font-medium mt-0.5">
             Crisis Management System
           </span>
         </Link>
       </div>
+
+      {/* ── Navigation Links ──────────────────────────────────────────────── */}
       <nav
         aria-label="Main navigation"
-        className="flex gap-2 overflow-x-auto p-3 lg:block"
+        className="flex-1 space-y-1.5 p-3 overflow-y-auto"
       >
         {navItems.map((item) => {
           const active = pathname === item.href;
+          const Icon = item.icon;
+
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`block whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-white lg:mb-1 ${
+              className={`flex items-center gap-3 rounded-lg px-3.5 py-2.5 text-xs font-semibold transition-colors duration-150 ${
                 active
-                  ? "bg-white text-slate-950"
-                  : "text-slate-200 hover:bg-slate-800 hover:text-white"
+                  ? "bg-slate-800 text-white shadow-sm border-l-4 border-red-600"
+                  : "text-slate-300 hover:bg-slate-900 hover:text-white"
               }`}
             >
-              {item.label}
+              <Icon
+                className={`h-4 w-4 shrink-0 ${
+                  active ? "text-red-500" : "text-slate-400"
+                }`}
+              />
+              <span>{item.label}</span>
             </Link>
           );
         })}
       </nav>
+
+      {/* ── Sidebar Footer / Status ───────────────────────────────────────── */}
+      <div className="border-t border-slate-800 p-4">
+        <div className="flex items-center gap-2 rounded-lg bg-slate-900 p-3">
+          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+          <div>
+            <p className="text-[11px] font-bold text-slate-200">MCMS Active Hub</p>
+            <p className="text-[10px] text-slate-400">Emergency Network Online</p>
+          </div>
+        </div>
+      </div>
     </aside>
   );
 }

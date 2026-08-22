@@ -1,7 +1,9 @@
 import Link from "next/link";
+import StatCard from "@/components/StatCard";
 import ReportCard from "@/components/ReportCard";
 import { getReports } from "@/lib/reportApi";
 import type { UserReportRecord } from "@/types/user-report";
+import { FileText, AlertTriangle, Layers } from "lucide-react";
 
 export default function DisastersPage() {
   return <OngoingDisastersContent />;
@@ -51,28 +53,27 @@ async function OngoingDisastersContent() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm font-semibold text-slate-500">
-            Ongoing reports
-          </p>
-          <p className="mt-2 text-3xl font-bold text-slate-950">
-            {reports.length}
-          </p>
-        </div>
-        <div className="rounded-lg border border-red-200 bg-red-50 p-5 shadow-sm">
-          <p className="text-sm font-semibold text-red-800">Critical alerts</p>
-          <p className="mt-2 text-3xl font-bold text-red-950">
-            {criticalCount}
-          </p>
-        </div>
-        <div className="rounded-lg border border-blue-200 bg-blue-50 p-5 shadow-sm">
-          <p className="text-sm font-semibold text-blue-800">
-            Disaster categories
-          </p>
-          <p className="mt-2 text-3xl font-bold text-blue-950">
-            {activeDisasterTypes}
-          </p>
-        </div>
+        <StatCard
+          title="Ongoing reports"
+          value={reports.length}
+          detail="Active incidents requiring attention"
+          tone="navy"
+          icon={FileText}
+        />
+        <StatCard
+          title="Critical alerts"
+          value={criticalCount}
+          detail="Urgent high priority reports"
+          tone="red"
+          icon={AlertTriangle}
+        />
+        <StatCard
+          title="Disaster categories"
+          value={activeDisasterTypes}
+          detail="Unique ongoing crisis types"
+          tone="blue"
+          icon={Layers}
+        />
       </section>
 
       {errorMessage ? (
