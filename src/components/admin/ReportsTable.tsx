@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import type { CredibilityLabel, ReportStatus, UserReportRecord } from "@/types/user-report";
 import { reportStatuses, reportUrgencyLevels } from "@/types/user-report";
-import { deleteReport, updateReportStatus } from "@/lib/adminApi";
+import { deleteReport, updateReportStatus, getAdminReports } from "@/lib/adminApi";
 import StatusDropdown from "@/components/admin/StatusDropdown";
 
 type ReportsTableProps = {
@@ -74,21 +74,51 @@ function CredibilityCell({ report }: { report: UserReportRecord }) {
 
 export default function ReportsTable({ initialReports }: ReportsTableProps) {
   const router = useRouter();
+  const [reports, setReports] = useState<UserReportRecord[]>(initialReports);
   const [activeTab, setActiveTab] = useState<string>("Pending");
   const [urgencyFilter, setUrgencyFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const filtered = initialReports.filter((report) => {
+  const refreshTable = useCallback(async () => {
+    try {
+      const latest = await getAdminReports();
+      setReports(latest);
+    } catch {
+      // Keep existing reports if network error occurs
+    }
+  }, []);
+
+  useEffect(() => {
+    setReports(initialReports);
+  }, [initialReports]);
+
+  useEffect(() => {
+    // Auto-poll every 5 seconds for new reports
+    const interval = setInterval(refreshTable, 5000);
+    const onFocus = () => refreshTable();
+
+    window.addEventListener("focus", onFocus);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [refreshTable]);
+
+  const filtered = reports.filter((report) => {
     if (activeTab !== "All" && report.status !== activeTab) return false;
     if (urgencyFilter !== "All" && report.urgencyLevel !== urgencyFilter) return false;
-    if (searchQuery && !report.message.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const matchMsg = report.message.toLowerCase().includes(q);
+      const matchTrans = report.translatedText?.toLowerCase().includes(q);
+      if (!matchMsg && !matchTrans) return false;
     }
     return true;
   });
 
   async function handleStatusChange(id: string, newStatus: ReportStatus) {
     await updateReportStatus(id, newStatus);
+    await refreshTable();
     router.refresh();
   }
 
@@ -99,6 +129,7 @@ export default function ReportsTable({ initialReports }: ReportsTableProps) {
     if (!confirmed) return;
 
     await deleteReport(id);
+    await refreshTable();
     router.refresh();
   }
 
@@ -189,11 +220,24 @@ export default function ReportsTable({ initialReports }: ReportsTableProps) {
             <tbody className="divide-y divide-slate-100">
               {filtered.map((report) => (
                 <tr key={report._id} className="transition-colors hover:bg-slate-50/50">
-                  <td className="max-w-xs px-4 py-3">
-                    <p className="truncate font-medium text-slate-800">{report.message}</p>
-                    <p className="mt-1 text-xs text-slate-500">
-                      {report.location ?? report.extractedLocations?.join(", ") ?? "No location"}
-                    </p>
+                  <td className="max-w-md px-4 py-3">
+                    <div className="flex items-center gap-1.5 flex-wrap mb-1">
+                      {report.wasTranslated && (
+                        <span className="inline-flex items-center gap-1 rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-800">
+                          🌐 {report.detectedLanguage || "Translated"}
+                        </span>
+                      )}
+                      <span className="text-xs text-slate-500 font-medium">
+                        {report.location ?? report.extractedLocations?.join(", ") ?? "No location"}
+                      </span>
+                    </div>
+                    <p className="font-medium text-slate-800 line-clamp-2">{report.message}</p>
+                    {report.wasTranslated && report.translatedText && (
+                      <div className="mt-1.5 rounded-md border border-blue-100 bg-blue-50/70 p-2 text-xs text-slate-700 italic">
+                        <span className="font-bold text-blue-800 not-italic">EN: </span>
+                        "{report.translatedText}"
+                      </div>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <span className="whitespace-nowrap capitalize text-slate-700">
@@ -252,7 +296,7 @@ export default function ReportsTable({ initialReports }: ReportsTableProps) {
       </div>
 
       <p className="text-xs text-slate-500">
-        Showing {filtered.length} of {initialReports.length} reports
+        Showing {filtered.length} of {reports.length} reports
       </p>
     </div>
   );

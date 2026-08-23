@@ -138,12 +138,18 @@ function addPins(
           ${report.crisisType ? `<div style="margin-bottom:4px">⚠️ <strong>Type:</strong> ${report.crisisType}</div>` : ""}
           ${report.messageType ? `<div style="margin-bottom:4px">📋 <strong>Info:</strong> ${report.messageType.replace(/_/g, " ")}</div>` : ""}
           ${report.affectedCommunities.length > 0 ? `<div style="margin-bottom:4px">👥 <strong>Affected:</strong> ${report.affectedCommunities.join(", ")}</div>` : ""}
+          ${report.wasTranslated && report.detectedLanguage ? `<div style="margin-bottom:4px">🌐 <strong>Language:</strong> ${report.detectedLanguage}</div>` : ""}
           <div style="margin-top:8px;padding-top:8px;border-top:1px solid #e2e8f0;font-size:11px;color:#64748b">
             ${new Date(report.createdAt).toLocaleString()}
           </div>
-          <div style="margin-top:4px;font-size:11px;color:#94a3b8">
+          <div style="margin-top:4px;font-size:11px;color:#334155 font-weight:500">
             ${report.message.slice(0, 100)}${report.message.length > 100 ? "…" : ""}
           </div>
+          ${report.wasTranslated && report.translatedText ? `
+            <div style="margin-top:4px;font-size:11px;color:#0369a1;font-style:italic;background:#f0f9ff;padding:4px 6px;border-radius:4px;border:1px solid #e0f2fe">
+              <strong>EN:</strong> "${report.translatedText.slice(0, 120)}${report.translatedText.length > 120 ? "…" : ""}"
+            </div>
+          ` : ""}
         </div>
       `);
 

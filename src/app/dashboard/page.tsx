@@ -85,11 +85,20 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchData();
-    // Auto polling every 30 seconds
+
+    // Auto polling every 5 seconds for live real-time updates
     const interval = setInterval(() => {
       fetchData(true);
-    }, 30000);
-    return () => clearInterval(interval);
+    }, 5000);
+
+    // Re-fetch instantly when tab comes back into focus
+    const onFocus = () => fetchData(true);
+    window.addEventListener("focus", onFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", onFocus);
+    };
   }, [fetchData]);
 
   const criticalAndHighCount =
@@ -104,11 +113,9 @@ export default function DashboardPage() {
       <section className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2.5">
-            <h2 className="text-2xl font-bold text-slate-950">Dashboard</h2>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              Express API Connected
-            </span>
+            <h2 className="text-2xl font-bold text-slate-950">
+              System Dashboard
+            </h2>
           </div>
           <p className="mt-1 text-sm text-slate-600">
             Real-time emergency operations and disaster analytics from Express API.

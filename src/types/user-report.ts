@@ -44,6 +44,9 @@ export type UserReportRecord = {
   _id                   : string;
   message               : string;
   location?             : string;
+  detectedLanguage?     : string;
+  wasTranslated?        : boolean;
+  translatedText?       : string;
   sourceType            : ReportSourceType;
   crisisType?           : string;
   crisisConfidence?     : number;

@@ -46,7 +46,7 @@ export default function RecentCrisisFeed({ reports }: RecentCrisisFeedProps) {
           <p className="text-xs text-slate-500 mt-0.5">Most recent disaster alerts submitted to MCMS</p>
         </div>
         <Link
-          href="/reports"
+          href="/disasters"
           className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline"
         >
           View All ({reports.length})
@@ -54,7 +54,7 @@ export default function RecentCrisisFeed({ reports }: RecentCrisisFeedProps) {
         </Link>
       </div>
 
-      <div className="mt-4 divide-y divide-slate-100">
+      <div className="mt-4 divide-y divide-slate-100 space-y-1">
         {recentReports.map((report) => {
           const formattedDate = report.createdAt
             ? new Date(report.createdAt).toLocaleString("en-US", {
@@ -68,38 +68,49 @@ export default function RecentCrisisFeed({ reports }: RecentCrisisFeedProps) {
           return (
             <div
               key={report._id}
-              className="group py-3.5 transition-colors hover:bg-slate-50/80 rounded-lg px-2"
+              className="group py-4 transition-colors hover:bg-slate-50/80 rounded-xl px-3"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="space-y-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span
-                      className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-bold ${getUrgencyBadge(
-                        report.urgencyLevel
-                      )}`}
-                    >
-                      {report.urgencyLevel || "Normal"}
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[11px] font-bold ${getUrgencyBadge(
+                      report.urgencyLevel
+                    )}`}
+                  >
+                    {report.urgencyLevel || "Normal"}
+                  </span>
+                  {report.wasTranslated && (
+                    <span className="inline-flex items-center rounded bg-blue-50 border border-blue-200 px-1.5 py-0.5 text-[10px] font-bold text-blue-700">
+                      🌐 {report.detectedLanguage || "Translated"}
                     </span>
-                    <span className="text-xs font-bold text-slate-800 capitalize">
-                      {report.crisisType ? report.crisisType.replace(/_/g, " ") : "Incident"}
-                    </span>
-                    <span className="text-[11px] text-slate-600 flex items-center gap-1">
-                      <Clock className="h-3 w-3 text-slate-600" />
-                      {formattedDate}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-700 line-clamp-2 leading-relaxed font-normal mt-1">
-                    {report.message}
-                  </p>
+                  )}
+                  <span className="text-xs font-bold text-slate-800 capitalize">
+                    {report.crisisType ? report.crisisType.replace(/_/g, " ") : "Incident"}
+                  </span>
+                  <span className="text-[11px] text-slate-500 flex items-center gap-1">
+                    <Clock className="h-3 w-3 text-slate-400" />
+                    {formattedDate}
+                  </span>
                 </div>
-              </div>
 
-              {report.location && (
-                <div className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-slate-500">
-                  <MapPin className="h-3 w-3 text-red-500 shrink-0" />
-                  <span className="truncate">{report.location}</span>
-                </div>
-              )}
+                <p className="text-xs text-slate-700 line-clamp-2 leading-relaxed font-normal">
+                  {report.message}
+                </p>
+
+                {report.wasTranslated && report.translatedText && (
+                  <div className="rounded-lg border border-blue-100 bg-blue-50/70 p-2.5 text-xs text-slate-700 leading-relaxed shadow-xs">
+                    <span className="font-bold text-blue-800 not-italic">EN: </span>
+                    <span className="italic">"{report.translatedText}"</span>
+                  </div>
+                )}
+
+                {report.location && (
+                  <div className="flex items-center gap-1 text-[11px] font-semibold text-slate-500 pt-0.5">
+                    <MapPin className="h-3 w-3 text-red-500 shrink-0" />
+                    <span className="truncate">{report.location}</span>
+                  </div>
+                )}
+              </div>
             </div>
           );
         })}

@@ -74,12 +74,9 @@ export default function Sidebar() {
 
       {/* ── Sidebar Footer / Status ───────────────────────────────────────── */}
       <div className="border-t border-slate-800 p-4">
-        <div className="flex items-center gap-2 rounded-lg bg-slate-900 p-3">
-          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-          <div>
-            <p className="text-[11px] font-bold text-slate-200">MCMS Active Hub</p>
-            <p className="text-[10px] text-slate-400">Emergency Network Online</p>
-          </div>
+        <div className="rounded-lg bg-slate-900 p-3">
+          <p className="text-[11px] font-bold text-slate-200">MCMS Active Hub</p>
+          <p className="text-[10px] text-slate-400">Emergency Network Online</p>
         </div>
       </div>
     </aside>

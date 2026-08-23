@@ -1,31 +1,62 @@
+"use client";
+
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import StatCard from "@/components/StatCard";
 import ReportCard from "@/components/ReportCard";
 import { getReports } from "@/lib/reportApi";
 import type { UserReportRecord } from "@/types/user-report";
-import { FileText, AlertTriangle, Layers } from "lucide-react";
+import { FileText, AlertTriangle, Layers, RefreshCw, Radio } from "lucide-react";
 
 export default function DisastersPage() {
-  return <OngoingDisastersContent />;
-}
+  const [reports, setReports] = useState<UserReportRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-async function OngoingDisastersContent() {
-  let reports: UserReportRecord[] = [];
-  let errorMessage: string | null = null;
+  const fetchDisasters = useCallback(async (isSilent = false) => {
+    if (!isSilent) setRefreshing(true);
+    try {
+      const allReports = await getReports();
+      const activeReports = allReports.filter((report) => report.status !== "Resolved");
+      setReports(activeReports);
+      setErrorMessage(null);
+    } catch (error) {
+      if (!isSilent) {
+        setErrorMessage(
+          error instanceof Error
+            ? error.message
+            : "Unable to load ongoing disasters.",
+        );
+      }
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
 
-  try {
-    const allReports = await getReports();
-    reports = allReports.filter((report) => report.status !== "Resolved");
-  } catch (error) {
-    errorMessage =
-      error instanceof Error
-        ? error.message
-        : "Unable to load ongoing disasters.";
-  }
+  useEffect(() => {
+    fetchDisasters(false);
 
-  const criticalCount = reports.filter(
-    (report) => report.urgencyLevel === "Critical",
+    // Auto-poll every 5 seconds for live real-time updates
+    const interval = setInterval(() => {
+      fetchDisasters(true);
+    }, 5000);
+
+    // Re-fetch instantly when tab comes back into focus
+    const onFocus = () => fetchDisasters(true);
+    window.addEventListener("focus", onFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [fetchDisasters]);
+
+  const highAlertsCount = reports.filter(
+    (report) => report.urgencyLevel === "High" || report.urgencyLevel === "Critical",
   ).length;
+
   const activeDisasterTypes = new Set(
     reports
       .map((report) => report.crisisType)
@@ -44,12 +75,24 @@ async function OngoingDisastersContent() {
             message, and urgency classification.
           </p>
         </div>
-        <Link
-          href="/add-report"
-          className="inline-flex rounded-md bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800"
-        >
-          Add crisis report
-        </Link>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => fetchDisasters(false)}
+            disabled={refreshing}
+            className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50 disabled:opacity-50"
+            title="Refresh reports"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin text-blue-600" : ""}`} />
+            Refresh
+          </button>
+          <Link
+            href="/add-report"
+            className="inline-flex rounded-md bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 shadow-sm"
+          >
+            Add crisis report
+          </Link>
+        </div>
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
@@ -61,8 +104,8 @@ async function OngoingDisastersContent() {
           icon={FileText}
         />
         <StatCard
-          title="Critical alerts"
-          value={criticalCount}
+          title="High priority alerts"
+          value={highAlertsCount}
           detail="Urgent high priority reports"
           tone="red"
           icon={AlertTriangle}
@@ -82,13 +125,13 @@ async function OngoingDisastersContent() {
         </div>
       ) : null}
 
-      {!errorMessage && reports.length === 0 ? (
+      {!loading && !errorMessage && reports.length === 0 ? (
         <div className="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm">
           <h3 className="text-lg font-bold text-slate-950">
             No ongoing disasters
           </h3>
           <p className="mt-2 text-sm text-slate-600">
-            When reports are submitted, active crisis items will appear here.
+            When reports are submitted, active crisis items will appear here automatically.
           </p>
           <Link
             href="/add-report"

@@ -16,10 +16,13 @@ import {
   ShieldAlert,
 } from "lucide-react";
 
+import { useRouter } from "next/navigation";
+
 const inputClass =
   "mt-2 w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-950 focus:border-slate-950 focus:outline-none focus:ring-2 focus:ring-slate-950";
 
 export default function ReportForm() {
+  const router = useRouter();
   const [message, setMessage] = useState("");
   const [location, setLocation] = useState("");
   const [createdReport, setCreatedReport] = useState<UserReportRecord | null>(
@@ -44,6 +47,7 @@ export default function ReportForm() {
       setCreatedReport(report);
       setMessage("");
       setLocation("");
+      router.refresh();
     } catch (error) {
       setErrorMessage(
         error instanceof Error
