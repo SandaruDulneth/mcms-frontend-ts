@@ -3,16 +3,24 @@
 import { useEffect, useRef } from "react";
 import type { UserReportRecord } from "@/types/user-report";
 
-// Urgency colours — matches your existing UrgencyBadge palette
 const URGENCY_COLOUR: Record<string, string> = {
-  Critical: "#991b1b",  // red-800
-  High    : "#b91c1c",  // red-700
-  Medium  : "#d97706",  // amber-600
-  Low     : "#15803d",  // green-700
+  Critical: "#991b1b",
+  High    : "#b91c1c",
+  Medium  : "#d97706",
+  Low     : "#15803d",
 };
 
 function urgencyColour(level?: string): string {
-  return URGENCY_COLOUR[level ?? ""] ?? "#475569"; // slate-600 fallback
+  return URGENCY_COLOUR[level ?? ""] ?? "#475569";
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
 interface DisasterMapProps {
@@ -21,14 +29,12 @@ interface DisasterMapProps {
 
 export default function DisasterMap({ reports }: DisasterMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<unknown>(null);  // holds the Leaflet map instance
+  const mapRef = useRef<unknown>(null);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
-    // Leaflet must be imported client-side only (no SSR)
     import("leaflet").then((L) => {
-      // Fix default marker icon paths broken by Next.js asset pipeline
       // biome-ignore lint/suspicious/noExplicitAny: Leaflet internal
       delete (L.Icon.Default.prototype as any)._getIconUrl;
       L.Icon.Default.mergeOptions({
@@ -37,7 +43,6 @@ export default function DisasterMap({ reports }: DisasterMapProps) {
         shadowUrl    : "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
       });
 
-      // Centre on Sri Lanka
       const map = L.map(containerRef.current!, {
         center: [7.8731, 80.7718],
         zoom  : 7,
@@ -49,8 +54,6 @@ export default function DisasterMap({ reports }: DisasterMapProps) {
       }).addTo(map);
 
       mapRef.current = map;
-
-      // Render initial pins
       addPins(L, map, reports);
     });
 
@@ -61,17 +64,15 @@ export default function DisasterMap({ reports }: DisasterMapProps) {
         mapRef.current = null;
       }
     };
-  // Only run once on mount
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Re-render pins whenever reports data changes
   useEffect(() => {
     if (!mapRef.current) return;
+
     import("leaflet").then((L) => {
       // biome-ignore lint/suspicious/noExplicitAny: Leaflet map
       const map = mapRef.current as any;
-      // Remove old pins before re-adding
       map.eachLayer((layer: unknown) => {
         // biome-ignore lint/suspicious/noExplicitAny: Leaflet layer
         if ((layer as any) instanceof L.Marker) map.removeLayer(layer);
@@ -82,12 +83,9 @@ export default function DisasterMap({ reports }: DisasterMapProps) {
 
   return (
     <>
-      {/* Leaflet CSS — loaded inline so no _document.tsx change needed */}
-      {/* biome-ignore lint/style/noUnusedTemplateLiteral: needed for next/head */}
       <link
         rel="stylesheet"
         href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        // biome-ignore lint/security/noDangerouslySetInnerHtmlWithChildren: external CDN
         crossOrigin=""
       />
       <div
@@ -98,7 +96,6 @@ export default function DisasterMap({ reports }: DisasterMapProps) {
   );
 }
 
-// ── Helper — add coloured circle markers with popups ─────────────────────────
 function addPins(
   // biome-ignore lint/suspicious/noExplicitAny: Leaflet namespace
   L: any,
@@ -119,35 +116,39 @@ function addPins(
         fillOpacity: 0.85,
       });
 
-      const urgencyEmoji =
-        report.urgencyLevel === "Critical" || report.urgencyLevel === "High"
-          ? "🔴"
-          : report.urgencyLevel === "Medium"
-            ? "🟠"
-            : "🟢";
+      const crisisType = report.crisisType ? escapeHtml(report.crisisType) : "";
+      const messageType = report.messageType ? escapeHtml(report.messageType.replace(/_/g, " ")) : "";
+      const affectedCommunities = report.affectedCommunities.length > 0
+        ? escapeHtml(report.affectedCommunities.join(", "))
+        : "";
+      const messagePreview = escapeHtml(
+        `${report.message.slice(0, 100)}${report.message.length > 100 ? "..." : ""}`,
+      );
+      const translatedPreview = report.wasTranslated && report.translatedText
+        ? escapeHtml(`${report.translatedText.slice(0, 120)}${report.translatedText.length > 120 ? "..." : ""}`)
+        : "";
 
-      // Popup content
       marker.bindPopup(`
         <div style="font-family:sans-serif;font-size:13px;min-width:200px">
           <div style="font-weight:700;font-size:14px;margin-bottom:6px">
-            📍 ${geo.name}
+            Location: ${escapeHtml(geo.name)}
           </div>
           <div style="margin-bottom:4px">
-            ${urgencyEmoji} <strong>Urgency:</strong> ${report.urgencyLevel ?? "Unknown"}
+            <strong>Urgency:</strong> ${escapeHtml(report.urgencyLevel ?? "Unknown")}
           </div>
-          ${report.crisisType ? `<div style="margin-bottom:4px">⚠️ <strong>Type:</strong> ${report.crisisType}</div>` : ""}
-          ${report.messageType ? `<div style="margin-bottom:4px">📋 <strong>Info:</strong> ${report.messageType.replace(/_/g, " ")}</div>` : ""}
-          ${report.affectedCommunities.length > 0 ? `<div style="margin-bottom:4px">👥 <strong>Affected:</strong> ${report.affectedCommunities.join(", ")}</div>` : ""}
-          ${report.wasTranslated && report.detectedLanguage ? `<div style="margin-bottom:4px">🌐 <strong>Language:</strong> ${report.detectedLanguage}</div>` : ""}
+          ${crisisType ? `<div style="margin-bottom:4px"><strong>Type:</strong> ${crisisType}</div>` : ""}
+          ${messageType ? `<div style="margin-bottom:4px"><strong>Info:</strong> ${messageType}</div>` : ""}
+          ${affectedCommunities ? `<div style="margin-bottom:4px"><strong>Affected:</strong> ${affectedCommunities}</div>` : ""}
+          ${report.wasTranslated && report.detectedLanguage ? `<div style="margin-bottom:4px"><strong>Language:</strong> ${escapeHtml(report.detectedLanguage)}</div>` : ""}
           <div style="margin-top:8px;padding-top:8px;border-top:1px solid #e2e8f0;font-size:11px;color:#64748b">
             ${new Date(report.createdAt).toLocaleString()}
           </div>
-          <div style="margin-top:4px;font-size:11px;color:#334155 font-weight:500">
-            ${report.message.slice(0, 100)}${report.message.length > 100 ? "…" : ""}
+          <div style="margin-top:4px;font-size:11px;color:#334155;font-weight:500">
+            ${messagePreview}
           </div>
-          ${report.wasTranslated && report.translatedText ? `
+          ${translatedPreview ? `
             <div style="margin-top:4px;font-size:11px;color:#0369a1;font-style:italic;background:#f0f9ff;padding:4px 6px;border-radius:4px;border:1px solid #e0f2fe">
-              <strong>EN:</strong> "${report.translatedText.slice(0, 120)}${report.translatedText.length > 120 ? "…" : ""}"
+              <strong>EN:</strong> "${translatedPreview}"
             </div>
           ` : ""}
         </div>

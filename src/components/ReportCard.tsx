@@ -211,11 +211,6 @@ export default function ReportCard({ report, showCredibility = false }: ReportCa
                   {report.detectedLanguage || "Translated"}
                 </span>
               )}
-              {report.sourceType && (
-                <span className="rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-medium text-slate-500">
-                  {report.sourceType}
-                </span>
-              )}
             </div>
             <h3 className="mt-3 text-lg font-bold text-slate-950 leading-snug">
               {formatLabel(report.crisisType)}
@@ -323,8 +318,6 @@ export default function ReportCard({ report, showCredibility = false }: ReportCa
       <div className="border-t border-slate-100 px-5 py-3">
         <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
           <div className="flex items-center gap-3">
-            <span className="font-medium text-slate-500">{report.sourceType}</span>
-            <span className="h-1 w-1 rounded-full bg-slate-300" />
             <span>{formatDate(report.createdAt)}</span>
           </div>
           {report.latencyMs !== undefined && (

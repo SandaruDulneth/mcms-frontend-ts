@@ -21,7 +21,7 @@ import {
   Zap,
   Shield,
   Clock,
-  Radio,
+  Globe,
 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -109,7 +109,7 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen space-y-8 px-4 py-6 sm:px-6 md:px-8 bg-slate-50/50">
-      {/* ── Top Header Section ─────────────────────────────────────────── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Top Header Section Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <section className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2.5">
@@ -153,7 +153,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* ── Key Metrics Stat Cards Grid ────────────────────────────────────────── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Key Metrics Stat Cards Grid Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Reports"
@@ -193,7 +193,7 @@ export default function DashboardPage() {
         />
       </section>
 
-      {/* ── Charts & Main Operational Widgets ─────────────────────────────────── */}
+      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Charts & Main Operational Widgets Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         {/* Left Column: Disaster Category & Velocity Timeline */}
         <div className="space-y-6 lg:col-span-7 xl:col-span-8">
@@ -222,12 +222,12 @@ export default function DashboardPage() {
               </Link>
 
               <Link
-                href="/authorities"
+                href="/reports"
                 className="group flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-slate-50/70 p-4 text-center transition-all duration-200 hover:border-emerald-300 hover:bg-emerald-50/50 hover:shadow-sm"
               >
-                <Radio className="h-6 w-6 text-emerald-600 transition-transform group-hover:scale-110" />
-                <span className="mt-2 text-xs font-bold text-slate-800">Authorities</span>
-                <span className="text-[10px] text-slate-500">Responder Contacts</span>
+                <Globe className="h-6 w-6 text-emerald-600 transition-transform group-hover:scale-110" />
+                <span className="mt-2 text-xs font-bold text-slate-800">External Intel</span>
+                <span className="text-[10px] text-slate-500">GDACS & NewsAPI</span>
               </Link>
             </div>
           </div>
