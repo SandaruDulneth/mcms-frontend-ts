@@ -6,7 +6,7 @@ import StatCard from "@/components/StatCard";
 import DisasterTypeChart from "@/components/analytics/DisasterTypeChart";
 import IncidentTrendChart from "@/components/analytics/IncidentTrendChart";
 import RecentCrisisFeed from "@/components/dashboard/RecentCrisisFeed";
-import { getAdminStats, getAdminReports } from "@/lib/adminApi";
+import { getReports } from "@/lib/reportApi";
 import type { AdminStats } from "@/types/admin-stats";
 import type { UserReportRecord } from "@/types/user-report";
 import {
@@ -38,45 +38,57 @@ export default function DashboardPage() {
     setError(null);
 
     try {
-      const [statsData, reportsData] = await Promise.all([
-        getAdminStats().catch(() => null),
-        getAdminReports().catch(() => []),
-      ]);
+      const reportsData = await getReports();
 
-      if (statsData) {
-        setStats(statsData);
-      } else {
-        // Build stats directly from reports fallback if admin/stats has issue
-        const byUrgency = { High: 0, Medium: 0, Low: 0, Critical: 0 };
-        const byStatus = { Pending: 0, Active: 0, "In Progress": 0, Resolved: 0 };
-        const byCrisisType: Record<string, number> = {};
+      const byUrgency = { High: 0, Medium: 0, Low: 0, Critical: 0 };
+      const byStatus = { Pending: 0, Active: 0, "In Progress": 0, Resolved: 0 };
+      const byCrisisType: Record<string, number> = {};
 
-        reportsData.forEach((r) => {
-          if (r.urgencyLevel && r.urgencyLevel in byUrgency) {
-            byUrgency[r.urgencyLevel as keyof typeof byUrgency]++;
-          }
-          if (r.status && r.status in byStatus) {
-            byStatus[r.status as keyof typeof byStatus]++;
-          }
-          if (r.crisisType) {
-            byCrisisType[r.crisisType] = (byCrisisType[r.crisisType] || 0) + 1;
-          }
-        });
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+      sevenDaysAgo.setHours(0, 0, 0, 0);
 
-        setStats({
-          totalReports: reportsData.length,
-          byUrgency,
-          byStatus,
-          byCrisisType,
-          totalResponders: 0,
-          reportsLast7Days: [],
-        });
+      const dailyCounts: Record<string, number> = {};
+
+      reportsData.forEach((r) => {
+        if (r.urgencyLevel && r.urgencyLevel in byUrgency) {
+          byUrgency[r.urgencyLevel as keyof typeof byUrgency]++;
+        }
+        if (r.status && r.status in byStatus) {
+          byStatus[r.status as keyof typeof byStatus]++;
+        }
+        if (r.crisisType) {
+          byCrisisType[r.crisisType] = (byCrisisType[r.crisisType] || 0) + 1;
+        }
+
+        if (r.createdAt) {
+          const dateKey = new Date(r.createdAt).toISOString().slice(0, 10);
+          dailyCounts[dateKey] = (dailyCounts[dateKey] || 0) + 1;
+        }
+      });
+
+      const reportsLast7Days: Array<{ date: string; count: number }> = [];
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(sevenDaysAgo);
+        d.setDate(d.getDate() + i);
+        const key = d.toISOString().slice(0, 10);
+        reportsLast7Days.push({ date: key, count: dailyCounts[key] ?? 0 });
       }
+
+      setStats({
+        totalReports: reportsData.length,
+        byUrgency,
+        byStatus,
+        byCrisisType,
+        totalResponders: 0,
+        reportsLast7Days,
+      });
 
       setReports(reportsData);
       setLastUpdated(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
-    } catch (err: any) {
-      setError(err?.message || "Failed to load dashboard data from backend.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to load dashboard data.";
+      setError(msg);
     } finally {
       setLoading(false);
       setRefreshing(false);

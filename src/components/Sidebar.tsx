@@ -9,6 +9,7 @@ import {
   MapPin,
   BarChart3,
   Globe,
+  ShieldCheck,
 } from "lucide-react";
 
 const navItems = [
@@ -25,7 +26,7 @@ export default function Sidebar() {
 
   return (
     <aside className="hidden lg:flex lg:w-64 lg:flex-col lg:shrink-0 bg-slate-950 text-white h-full border-r border-slate-800 select-none">
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Sidebar Header (No Icon Logo) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
+      {/* ── Sidebar Header (No Icon Logo) ─────────────────────────── */}
       <div className="border-b border-slate-800 p-5">
         <Link
           href="/"
@@ -40,7 +41,7 @@ export default function Sidebar() {
         </Link>
       </div>
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Navigation Links Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
+      {/* ── Navigation Links ────────────────────────────────────────── */}
       <nav
         aria-label="Main navigation"
         className="flex-1 space-y-1.5 p-3 overflow-y-auto"
@@ -70,7 +71,18 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Ã¢â€â‚¬Ã¢â€â‚¬ Sidebar Footer / Status Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */}
+      {/* ── Admin Portal Access Button ──────────────────────────────── */}
+      <div className="border-t border-slate-800 p-3">
+        <Link
+          href="/admin"
+          className="flex items-center gap-3 rounded-lg border border-slate-800 bg-slate-900 px-3.5 py-2.5 text-xs font-semibold text-slate-200 shadow-sm transition-all hover:border-red-600 hover:bg-slate-900 hover:text-white"
+        >
+          <ShieldCheck className="h-4 w-4 shrink-0 text-red-500" />
+          <span>Admin Portal</span>
+        </Link>
+      </div>
+
+      {/* ── Sidebar Footer / Status ─────────────────────────────────── */}
       <div className="border-t border-slate-800 p-4">
         <div className="rounded-lg bg-slate-900 p-3">
           <p className="text-[11px] font-bold text-slate-200">MCMS Active Hub</p>
