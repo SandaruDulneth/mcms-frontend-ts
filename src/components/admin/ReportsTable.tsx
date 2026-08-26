@@ -6,6 +6,8 @@ import type { CredibilityLabel, ReportStatus, UserReportRecord } from "@/types/u
 import { reportStatuses, reportUrgencyLevels } from "@/types/user-report";
 import { deleteReport, updateReportStatus, getAdminReports } from "@/lib/adminApi";
 import StatusDropdown from "@/components/admin/StatusDropdown";
+import ReportOverviewModal from "@/components/admin/ReportOverviewModal";
+import { Eye } from "lucide-react";
 
 type ReportsTableProps = {
   initialReports: UserReportRecord[];
@@ -78,15 +80,21 @@ export default function ReportsTable({ initialReports }: ReportsTableProps) {
   const [activeTab, setActiveTab] = useState<string>("Pending");
   const [urgencyFilter, setUrgencyFilter] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedReport, setSelectedReport] = useState<UserReportRecord | null>(null);
 
   const refreshTable = useCallback(async () => {
     try {
       const latest = await getAdminReports();
       setReports(latest);
+      // Keep selected report updated if open
+      if (selectedReport) {
+        const updated = latest.find((r) => r._id === selectedReport._id);
+        if (updated) setSelectedReport(updated);
+      }
     } catch {
       // Keep existing reports if network error occurs
     }
-  }, []);
+  }, [selectedReport]);
 
   useEffect(() => {
     setReports(initialReports);
@@ -129,16 +137,27 @@ export default function ReportsTable({ initialReports }: ReportsTableProps) {
     if (!confirmed) return;
 
     await deleteReport(id);
+    if (selectedReport?._id === id) {
+      setSelectedReport(null);
+    }
     await refreshTable();
     router.refresh();
   }
 
   return (
     <div className="space-y-4">
+      {/* ── Report Overview Popup Modal ────────────────────────────── */}
+      <ReportOverviewModal
+        report={selectedReport}
+        onClose={() => setSelectedReport(null)}
+        onStatusChange={handleStatusChange}
+        onDelete={handleDelete}
+      />
+
       <div className="rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-800">
         <p className="font-semibold">Admin review flow</p>
         <p className="mt-1 text-blue-700">
-          New reports stay Pending. Check credibility and AI details, then approve real disasters by setting status to Active.
+          New reports stay Pending. Click any message or "View Details" to open the full overview popup with complete message text, AI NLP breakdown, and external evidence.
         </p>
       </div>
 
@@ -219,8 +238,12 @@ export default function ReportsTable({ initialReports }: ReportsTableProps) {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filtered.map((report) => (
-                <tr key={report._id} className="transition-colors hover:bg-slate-50/50">
-                  <td className="max-w-md px-4 py-3">
+                <tr
+                  key={report._id}
+                  className="transition-colors hover:bg-slate-50/70 cursor-pointer"
+                  onClick={() => setSelectedReport(report)}
+                >
+                  <td className="max-w-md px-4 py-3" onClick={(e) => e.stopPropagation()}>
                     <div className="flex items-center gap-1.5 flex-wrap mb-1">
                       {report.wasTranslated && (
                         <span className="inline-flex items-center gap-1 rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-800">
@@ -231,7 +254,21 @@ export default function ReportsTable({ initialReports }: ReportsTableProps) {
                         {report.location ?? report.extractedLocations?.join(", ") ?? "No location"}
                       </span>
                     </div>
-                    <p className="font-medium text-slate-800 line-clamp-2">{report.message}</p>
+
+                    <div
+                      onClick={() => setSelectedReport(report)}
+                      className="group cursor-pointer"
+                    >
+                      <p className="font-medium text-slate-800 line-clamp-2 group-hover:text-blue-600 transition-colors">
+                        {report.message}
+                      </p>
+                      {report.message.length > 90 && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 hover:underline mt-0.5">
+                          <Eye className="h-3 w-3" /> Read full overview...
+                        </span>
+                      )}
+                    </div>
+
                     {report.wasTranslated && report.translatedText && (
                       <div className="mt-1.5 rounded-md border border-blue-100 bg-blue-50/70 p-2 text-xs text-slate-700 italic">
                         <span className="font-bold text-blue-800 not-italic">EN: </span>
@@ -260,7 +297,7 @@ export default function ReportsTable({ initialReports }: ReportsTableProps) {
                   <td className="px-4 py-3">
                     <CredibilityCell report={report} />
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                     <StatusDropdown
                       currentStatus={report.status}
                       options={reportStatuses}
@@ -270,19 +307,29 @@ export default function ReportsTable({ initialReports }: ReportsTableProps) {
                   <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-500">
                     {formatDate(report.createdAt)}
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-wrap gap-2">
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <button
+                        onClick={() => setSelectedReport(report)}
+                        className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 hover:border-slate-300 transition-colors"
+                        title="View Full Details"
+                      >
+                        <Eye className="h-3.5 w-3.5 text-blue-600" />
+                        <span>View</span>
+                      </button>
+
                       {report.status === "Pending" ? (
                         <button
                           onClick={() => handleStatusChange(report._id, "Active")}
-                          className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100"
+                          className="rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100"
                         >
                           Approve
                         </button>
                       ) : null}
+
                       <button
                         onClick={() => handleDelete(report._id)}
-                        className="rounded-lg border border-red-200 bg-white px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
+                        className="rounded-lg border border-red-200 bg-white px-2.5 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
                       >
                         Delete
                       </button>
@@ -301,4 +348,3 @@ export default function ReportsTable({ initialReports }: ReportsTableProps) {
     </div>
   );
 }
-
