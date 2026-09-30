@@ -1,4 +1,4 @@
-<![CDATA[# 🌐 MCMS Frontend — Crisis Operations Dashboard
+# 🌐 MCMS Frontend — Crisis Operations Dashboard
 
 > Next.js 16 web application for the **Multilingual Crisis Management System (MCMS)**.  
 > A real-time operations dashboard that visualises AI-classified crisis reports, interactive maps, analytics charts, and an admin panel for emergency coordinators.
@@ -262,4 +262,4 @@ mcms-frontend-ts/
 ## License
 
 This project is part of a Final Year Project at the University level.
-]]>
+
