@@ -41,12 +41,6 @@ This frontend serves as the **public-facing and admin interface** for the MCMS p
 
 ---
 
-## Screenshots
-
-> Screenshots coming soon — run the project locally to see the full interface!
-
----
-
 ## Key Features
 
 | Feature | Description |
@@ -233,8 +227,8 @@ mcms-frontend-ts/
 
 | Repository | Description |
 |---|---|
-| [mcms-backend-ts](../mcms-backend-ts) | Node.js/Express REST API — report management, credibility scoring, GDACS/NewsAPI integration |
-| [mcms-backend-py](../mcms-backend-py) | FastAPI AI micro-service — 3-model NLP pipeline with multilingual translation |
+| [mcms-backend-ts](https://github.com/SandaruDulneth/mcms-backend-ts) | Node.js/Express REST API — report management, credibility scoring, GDACS/NewsAPI integration |
+| [mcms-backend-py](https://github.com/SandaruDulneth/mcms-backend-py) | FastAPI AI micro-service — 3-model NLP pipeline with multilingual translation |
 
 ---
 
